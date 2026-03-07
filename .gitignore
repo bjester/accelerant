@@ -1,0 +1,31 @@
+# build
+dist/
+
+# env
+.envrc
+.env
+
+# deps
+node_modules
+
+# Virtual environments
+.venv
+.python-version
+
+# IDE
+.idea/
+/*.iml
+
+# AI
+.aiassistant/
+.junie/
+.vibe/
+.claude/
+
+# Tools
+.gh/
+
+# logs, ephemeral
+firebase-debug.log
+firestore-debug.log
+test-results/

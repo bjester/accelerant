@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accelerant E2E</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1115;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --surface: #1f2430;
+        --border: #2f3542;
+        --button-bg: #2b3240;
+        --button-text: #e5e7eb;
+        --button-border: #3b4352;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 24px;
+        background: var(--bg);
+        color: var(--text);
+      }
+      button {
+        margin-right: 8px;
+        margin-bottom: 8px;
+        background: var(--button-bg);
+        color: var(--button-text);
+        border: 1px solid var(--button-border);
+        border-radius: 6px;
+        padding: 6px 10px;
+      }
+      button:hover { filter: brightness(1.08); }
+      pre {
+        background: var(--surface);
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+      .button-block {
+          display: inline-block;
+          max-width: 150px;
+      }
+      .status-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 12px 0;
+      }
+      .dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--muted);
+          display: inline-block;
+      }
+      .dot.green { background: #16a34a; }
+      .dot.red { background: #dc2626; }
+      .dot.blue { background: #2563eb; }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(360px, 1fr) minmax(360px, 1fr);
+        gap: 20px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px;
+      }
+      .row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .row:last-child { margin-bottom: 0; }
+      .input {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        min-width: 160px;
+      }
+      .stack { display: grid; gap: 12px; }
+      .create-log { margin-top: 16px; }
+      .create-entry { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+      .create-entry pre { margin: 8px 0 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Accelerant E2E</h1>
+    <div class="layout">
+      <div class="panel">
+        <div class="stack">
+          <div>
+            <div class="status-row">
+              <span class="dot" id="auth-indicator"></span>
+              <span id="auth-status-text">Auth: unknown</span>
+            </div>
+            <div class="status-row">
+              <span class="dot" id="fs-indicator"></span>
+              <span id="fs-status-text">Firestore cache: none</span>
+            </div>
+          </div>
+          <div>
+            <div class="row">
+              <h4>Auth:</h4>
+              <button id="btn-auth">Status</button>
+              <button id="btn-auth-signin">Sign-in</button>
+              <button id="btn-auth-signout">Sign-out</button>
+            </div>
+            <div class="row">
+              <h4>Storage:</h4>
+              <button id="btn-storage-create">Create</button>
+              <button id="btn-storage-head">Head</button>
+              <button id="btn-storage-fetch">Fetch</button>
+              <button id="btn-storage-delete">Delete</button>
+            </div>
+            <h4>Firestore:</h4>
+            <div class="row">
+              <input id="fs-create-name" class="input" placeholder="Create name" />
+              <button id="btn-fs-create">Create</button>
+              <input id="fs-fetch-query" class="input" placeholder="Fetch query (after ?)" />
+              <button id="btn-fs-fetch">Fetch</button>
+              <input id="fs-delete-id" class="input" placeholder="Delete id" />
+              <button id="btn-fs-delete">Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="create-log">
+          <h3>Create Log</h3>
+          <div id="create-log"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Output</h3>
+        <pre id="log"></pre>
+        <h3>Messages</h3>
+        <pre id="messages"></pre>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

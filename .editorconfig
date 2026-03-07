@@ -1,0 +1,17 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = false
+max_line_length = 100
+tab_width = 2
+
+[{*.mk,GNUmakefile,GNUmakefile.inc,makefile,makefile.inc}]
+tab_width = 4
+
+[{*.py,*.pyw}]
+indent_size = 4
+tab_width = 4
