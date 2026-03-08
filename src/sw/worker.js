@@ -3,6 +3,7 @@
 import { setCatchHandler } from 'workbox-routing';
 
 import WorkerRuntime from './runtime.js';
+import { FirestorePath } from '../request/firestore.js';
 // shim for firebase-storage (doh!)
 import '../shim/xhr.js';
 
@@ -27,7 +28,6 @@ import {
   PatchStrategyHandler as FirestorePatchHandler,
   DeleteStrategyHandler as FirestoreDeleteHandler,
   HeadStrategyHandler as FirestoreHeadHandler,
-  FirestorePath
 } from '../strategy/handler/firestore.js';
 import { FunctionsStrategyHandler as FunctionsHandler } from '../strategy/handler/functions.js';
 import {
