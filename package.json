@@ -4,12 +4,12 @@
   "description": "A service worker for simplifying your frontend integration with Firebase",
   "main": "src/index.js",
   "scripts": {
-    "test": ".venv/bin/pnpm test:unit && .venv/bin/pnpm test:integ",
+    "test": "pnpm test:unit && pnpm test:integ",
     "test:unit": "mocha --require test/unit/setup.js \"test/unit/*.test.js\"",
     "test:integ:exec": "mocha --require test/integration/setup.js \"test/integration/**/*.test.js\"",
-    "test:integ": "firebase emulators:exec --project demo-accelerant \".venv/bin/pnpm test:integ:exec\"",
+    "test:integ": "firebase emulators:exec --project demo-accelerant \"pnpm test:integ:exec\"",
     "test:e2e:exec": "playwright test -c test/e2e/playwright.config.js",
-    "test:e2e": "firebase emulators:exec --project demo-accelerant \".venv/bin/pnpm test:e2e:exec\""
+    "test:e2e": "firebase emulators:exec --project demo-accelerant \"pnpm test:e2e:exec\""
   },
   "keywords": [
     "firebase",
