@@ -10,6 +10,10 @@ import {
 import { BadRequestError } from '../errors.js';
 import RequestContext from './index.js';
 
+const KIND_COLLECTION = 'collection';
+const KIND_COLLECTION_GROUP = 'collectionGroup';
+const KIND_DOCUMENT = 'doc';
+
 const LIMIT = 'limit';
 const ORDER_BY = 'orderBy';
 const AFTER = 'after';
@@ -90,21 +94,21 @@ export default class FirestoreRequestDescriptor {
     const isCollectionGroupPath = context.path.endsWith('.group');
 
     /** @type {FirestoreRequestKind} */
-    let kind = 'collection';
+    let kind = KIND_COLLECTION;
     let collectionPath = '';
     let docId = null;
     let groupName = null;
 
     if (isCollectionGroupPath) {
-      kind = 'collectionGroup';
+      kind = KIND_COLLECTION_GROUP;
       groupName = pathSplit[pathSplit.length - 1]?.replace(/\.group$/, '') || null;
       collectionPath = (context.path || '').replace(/^\/+/, '').replace(/\.group$/, '');
     } else if (pathSplit.length % 2 === 0) {
-      kind = 'doc';
+      kind = KIND_DOCUMENT;
       docId = pathSplit[pathSplit.length - 1] || null;
       collectionPath = pathSplit.slice(0, -1).join('/');
     } else {
-      kind = 'collection';
+      kind = KIND_COLLECTION;
       collectionPath = pathSplit.join('/');
     }
 
@@ -195,21 +199,21 @@ export default class FirestoreRequestDescriptor {
    * @return {boolean}
    */
   get isDocumentPath() {
-    return this.kind === 'doc';
+    return this.kind === KIND_DOCUMENT;
   }
 
   /**
    * @return {boolean}
    */
   get isCollectionPath() {
-    return this.kind === 'collection';
+    return this.kind === KIND_COLLECTION;
   }
 
   /**
    * @return {boolean}
    */
   get isCollectionGroupPath() {
-    return this.kind === 'collectionGroup';
+    return this.kind === KIND_COLLECTION_GROUP;
   }
 
   /**
@@ -369,11 +373,3 @@ export class FirestorePath {
     return new FirestorePath(request, this._apiPath);
   }
 }
-
-export {
-  RESERVED_KEYS,
-  LIMIT,
-  ORDER_BY,
-  AFTER,
-  AT,
-};
