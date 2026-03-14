@@ -12,7 +12,7 @@ export default defineConfig({
     serviceWorkers: 'allow'
   },
   webServer: {
-    command: '../../.venv/bin/pnpm exec vite --config test/e2e/vite.config.js',
+    command: 'pnpm exec vite --config test/e2e/vite.config.js',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI
   }
