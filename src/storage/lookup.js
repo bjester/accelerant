@@ -106,7 +106,7 @@ export default class PrefixIndex extends IndexInterface {
    * @private
    */
   async _getIndex(key) {
-    const prefix = key.slice(0, this.prefixLength);
+    const prefix = this.prefixLength > 0 ? key.slice(0, this.prefixLength) : key;
     if (!this.indices.has(prefix)) {
       const data = await this.persistence.read(prefix);
       const storage = new InMemoryStorage(`${this.name}.${prefix}`, data || {});
@@ -153,11 +153,12 @@ export default class PrefixIndex extends IndexInterface {
 
   /**
    * @param {string} name
+   * @param {number} prefixLength
    * @return {PrefixIndex}
    */
-  static async getInstance(name) {
+  static async getInstance(name, prefixLength = 1) {
     if (!instances.has(name)) {
-      const index = new PrefixIndex(name);
+      const index = new PrefixIndex(name, prefixLength);
       instances.set(name, index);
     }
     return instances.get(name);

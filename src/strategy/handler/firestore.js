@@ -16,7 +16,6 @@ import {
 } from '../../errors.js';
 import FirestoreRequestDescriptor, {
   buildQueryConstraints,
-  FirestorePath
 } from '../../request/firestore.js';
 import StrategyHandler from './index.js';
 
@@ -267,7 +266,7 @@ export class PostStrategyHandler extends UpdateStrategyHandler {
   async cachePut(request, response) {
     const cacheKey = response.headers.get('X-Cache-Key');
     if (!cacheKey) {
-      return super.cachePut(request, response);
+      return super.cachePut(request.clone(), response);
     }
     return super.cachePut(new Request(`${self.location.origin}${cacheKey}`), response);
   }
