@@ -174,7 +174,7 @@ export class IndexingWorkboxPlugin extends WorkboxPlugin {
     state.indexUpdated = true;
 
     // do not await-- background update
-    handler.waitUntil(this._updateIndex(state, request, response.clone(), handler));
+    handler.waitUntil(this._updateIndex(state, request.clone(), response.clone(), handler));
 
     return response;
   }
@@ -215,7 +215,7 @@ export class CacheWorkboxPlugin extends WorkboxPlugin {
   }
 
   async cacheKeyWillBeUsed({request}) {
-    return getCacheKey({ request });
+    return getCacheKey({ request: request.clone() });
   }
 
   async cacheWillUpdate({request, response, handler}) {
@@ -268,7 +268,7 @@ export class CacheInvalidateWorkboxPlugin extends WorkboxPlugin {
     }
 
     // do not await-- background update
-    handler.waitUntil(this._runInvalidate(handler, request));
+    handler.waitUntil(this._runInvalidate(handler, request.clone()));
 
     return response;
   }
@@ -285,7 +285,7 @@ export class CacheInvalidateWorkboxPlugin extends WorkboxPlugin {
     }
 
     // do not await-- background update
-    handler.waitUntil(this._runInvalidate(handler, request));
+    handler.waitUntil(this._runInvalidate(handler, request.clone()));
   }
 }
 
@@ -325,7 +325,7 @@ export class AnnouncementWorkboxPlugin extends WorkboxPlugin {
    * @return {Promise<Response>}
    */
   async fetchDidSucceed({ request, response }) {
-    this._postMessage(request, response);
+    this._postMessage(request.clone(), response);
     return response;
   }
 
@@ -335,6 +335,6 @@ export class AnnouncementWorkboxPlugin extends WorkboxPlugin {
    * @return {Promise<void>}
    */
   async fetchDidFail({ request, error }) {
-    this._postMessage(request, new Response(error.message, {status: 500}));
+    this._postMessage(request.clone(), new Response(error.message, {status: 500}));
   }
 }

@@ -181,7 +181,6 @@ export default class StrategyHandler extends BaseStrategyHandler {
    * @private
    */
   _handleError(error) {
-    console.error(error);
     return this.runtime.response.json.internalServerError({
       error: 'unknown',
       code: error.code,
@@ -214,7 +213,7 @@ export default class StrategyHandler extends BaseStrategyHandler {
    * @protected
    */
   _getContext(request) {
-    return new RequestContext(request, { pathPrefix: this.apiPath });
+    return new RequestContext(request.clone(), { pathPrefix: this.apiPath });
   }
 
   /**
