@@ -45,6 +45,7 @@ import {
   CacheInvalidateWorkboxPlugin,
   getCacheKey
 } from '../strategy/plugins/core.js';
+import { FirestoreListenerWorkboxPlugin } from "../strategy/plugins/firestore.js";
 
 
 const API_AUTH_PATH = 'auth';
@@ -183,6 +184,9 @@ function registerFirestoreRoutes(apiPath, runtime) {
       return Array.from(requestUrls).map(url => getCacheKey({ url }));
     }
   });
+  const firestoreListenerPlugin = new FirestoreListenerWorkboxPlugin(runtime, {
+    name: 'firestore.listeners'
+  });
 
   // Firestore routes
   // ================
@@ -193,6 +197,7 @@ function registerFirestoreRoutes(apiPath, runtime) {
   runtime.routeGet(apiPath, CacheFirst, FirestoreGetHandler, {
     plugins: [
       idIndexPlugin,
+      firestoreListenerPlugin,
       cachePlugin,
       urlIndexPlugin,
     ]
