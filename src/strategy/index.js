@@ -55,6 +55,43 @@ function splitOptions(
   };
 }
 
+/**
+ * Override of Strategy's `handleAll` to use handler factory
+ *
+ * @param {FetchEvent|HandlerCallbackOptions} options
+ * @return {[Promise<Response>, Promise<void>]}
+ */
+function _handleAll(options) {
+  // Allow for flexible options to be passed.
+  if (typeof FetchEvent !== 'undefined' && options instanceof FetchEvent) {
+    options = {
+      event: options,
+      request: options.request,
+    };
+  }
+
+  const event = options.event;
+  const request =
+    typeof options.request === 'string'
+      ? new Request(options.request)
+      : options.request;
+  const params = 'params' in options ? options.params : undefined;
+
+  const initialHandler = new StrategyHandler(this, {event, request, params});
+  const handler = this.handlerFactory.build(this, initialHandler);
+
+  const responseDone = this._getResponse(handler, request, event);
+  const handlerDone = this._awaitComplete(
+    responseDone,
+    handler,
+    request,
+    event
+  );
+
+  // Return an array of promises, suitable for use with Promise.all().
+  return [responseDone, handlerDone];
+}
+
 export class Strategy extends BaseStrategy {
   /**
    * @param {Object|StrategyOptions} options
@@ -78,15 +115,10 @@ export class Strategy extends BaseStrategy {
   }
 
   /**
-   * @param {StrategyHandler} handler
-   * @param {Request} request
-   * @param {ExtendableEvent} event
-   * @return {Promise<Response>}
-   * @private
+   * @param {FetchEvent|HandlerCallbackOptions} options
+   * @return {[Promise<Response>, Promise<void>]}
    */
-  _getResponse(handler, request, event) {
-    return super._getResponse(this.handlerFactory.build(this, handler), request, event);
-  }
+  handleAll = _handleAll
 }
 
 export class CacheFirst extends BaseCacheFirst {
@@ -102,15 +134,10 @@ export class CacheFirst extends BaseCacheFirst {
   }
 
   /**
-   * @param {StrategyHandler} handler
-   * @param {Request} request
-   * @param {ExtendableEvent} event
-   * @return {Promise<Response>}
-   * @private
+   * @param {FetchEvent|HandlerCallbackOptions} options
+   * @return {[Promise<Response>, Promise<void>]}
    */
-  _getResponse(handler, request, event) {
-    return super._getResponse(this.handlerFactory.build(this, handler), request, event);
-  }
+  handleAll = _handleAll
 }
 
 export class CacheAfter extends Strategy {
@@ -167,15 +194,10 @@ export class CacheOnly extends BaseCacheOnly {
   }
 
   /**
-   * @param {StrategyHandler} handler
-   * @param {Request} request
-   * @param {ExtendableEvent} event
-   * @return {Promise<Response>}
-   * @private
+   * @param {FetchEvent|HandlerCallbackOptions} options
+   * @return {[Promise<Response>, Promise<void>]}
    */
-  _getResponse(handler, request, event) {
-    return super._getResponse(this.handlerFactory.build(this, handler), request, event);
-  }
+  handleAll = _handleAll
 }
 
 export class NetworkFirst extends BaseNetworkFirst {
@@ -191,15 +213,10 @@ export class NetworkFirst extends BaseNetworkFirst {
   }
 
   /**
-   * @param {StrategyHandler} handler
-   * @param {Request} request
-   * @param {ExtendableEvent} event
-   * @return {Promise<Response>}
-   * @private
+   * @param {FetchEvent|HandlerCallbackOptions} options
+   * @return {[Promise<Response>, Promise<void>]}
    */
-  _getResponse(handler, request, event) {
-    return super._getResponse(this.handlerFactory.build(this, handler), request, event);
-  }
+  handleAll = _handleAll
 }
 
 export class NetworkOnly extends BaseNetworkOnly {
@@ -215,15 +232,10 @@ export class NetworkOnly extends BaseNetworkOnly {
   }
 
   /**
-   * @param {StrategyHandler} handler
-   * @param {Request} request
-   * @param {ExtendableEvent} event
-   * @return {Promise<Response>}
-   * @private
+   * @param {FetchEvent|HandlerCallbackOptions} options
+   * @return {[Promise<Response>, Promise<void>]}
    */
-  _getResponse(handler, request, event) {
-    return super._getResponse(this.handlerFactory.build(this, handler), request, event);
-  }
+  handleAll = _handleAll
 }
 
 export class StaleWhileRevalidate extends BaseStaleWhileRevalidate {
@@ -239,13 +251,8 @@ export class StaleWhileRevalidate extends BaseStaleWhileRevalidate {
   }
 
   /**
-   * @param {StrategyHandler} handler
-   * @param {Request} request
-   * @param {ExtendableEvent} event
-   * @return {Promise<Response>}
-   * @private
+   * @param {FetchEvent|HandlerCallbackOptions} options
+   * @return {[Promise<Response>, Promise<void>]}
    */
-  _getResponse(handler, request, event) {
-    return super._getResponse(this.handlerFactory.build(this, handler), request, event);
-  }
+  handleAll = _handleAll
 }
