@@ -10,9 +10,9 @@ import {
 import { BadRequestError } from '../errors.js';
 import RequestContext from './index.js';
 
-const KIND_COLLECTION = 'collection';
-const KIND_COLLECTION_GROUP = 'collectionGroup';
-const KIND_DOCUMENT = 'doc';
+export const KIND_COLLECTION = 'collection';
+export const KIND_COLLECTION_GROUP = 'collectionGroup';
+export const KIND_DOCUMENT = 'document';
 
 const LIMIT = 'limit';
 const ORDER_BY = 'orderBy';
@@ -27,20 +27,25 @@ const HAS_ANY = 'has_any';
 
 const ARRAY_OPERATORS = ['in', 'not-in', 'array-contains-any'];
 
-const SuffixToOperator = {
-  '': '==',
-  gt: '>',
-  gte: '>=',
-  lt: '<',
-  lte: '<=',
-  [IN]: 'in',
-  [NOT_IN]: 'not-in',
-  has: 'array-contains',
-  [HAS_ANY]: 'array-contains-any',
-};
+const FILTER_SUFFIX_OPERATOR_PAIRS = [
+  ['', '=='],
+  ['gt', '>'],
+  ['gte', '>='],
+  ['lt', '<'],
+  ['lte', '<='],
+  [IN, 'in'],
+  [NOT_IN, 'not-in'],
+  ['has', 'array-contains'],
+  [HAS_ANY, 'array-contains-any'],
+];
+
+const SuffixToOperator = Object.fromEntries(FILTER_SUFFIX_OPERATOR_PAIRS);
+const OperatorToSuffix = Object.fromEntries(
+  FILTER_SUFFIX_OPERATOR_PAIRS.map(([suffix, operator]) => [operator, suffix])
+);
 
 /**
- * @typedef {'doc' | 'collection' | 'collectionGroup'} FirestoreRequestKind
+ * @typedef {'document' | 'collection' | 'collectionGroup'} FirestoreRequestKind
  */
 
 /**
@@ -257,6 +262,69 @@ export default class FirestoreRequestDescriptor {
     };
 
     return JSON.stringify(normalized);
+  }
+
+  /**
+   * @param {string} [apiPath]
+   * @return {string}
+   */
+  toStandardizedURI(apiPath = '/api/db') {
+    const normalizedApiPath = String(apiPath || '').replace(/^\/+|\/+$/g, '');
+
+    let relativePath = this.collectionPath;
+    if (this.isDocumentPath && this.docId) {
+      relativePath = `${this.collectionPath}/${this.docId}`;
+    } else if (this.isCollectionGroupPath) {
+      const groupPath = this.collectionPath || this.groupName || '';
+      relativePath = `${groupPath.replace(/\.group$/, '')}.group`;
+    }
+
+    const basePath = `/${relativePath.replace(/^\/+/, '')}`;
+    const fullPath = normalizedApiPath
+      ? `/${normalizedApiPath}${basePath}`
+      : basePath;
+
+    const params = new URLSearchParams();
+
+    const sortedFilters = [...this.filters]
+      .sort((a, b) => `${a.field}:${a.operator}`.localeCompare(`${b.field}:${b.operator}`));
+    for (const filter of sortedFilters) {
+      const suffix = OperatorToSuffix[filter.operator];
+      const key = suffix ? `${filter.field}__${suffix}` : filter.field;
+      const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+
+      for (const value of values) {
+        if (typeof value === 'boolean') {
+          params.append(key, value ? 'true' : 'false');
+        } else if (value === null) {
+          params.append(key, 'null');
+        } else {
+          params.append(key, String(value));
+        }
+      }
+    }
+
+    const sortedOrderBy = [...this.orderBy]
+      .sort((a, b) => `${a.field}:${a.direction}`.localeCompare(`${b.field}:${b.direction}`));
+    for (const field of sortedOrderBy) {
+      params.append(ORDER_BY, `${field.direction}:${field.field}`);
+    }
+
+    if (this.limit !== null) {
+      params.append(LIMIT, String(this.limit));
+    }
+
+    const sortedCursors = [...this.cursors]
+      .sort((a, b) => a.type.localeCompare(b.type));
+    for (const cursor of sortedCursors) {
+      const key = cursor.type === 'startAfter' ? AFTER : AT;
+      for (const value of cursor.values) {
+        params.append(key, String(value));
+      }
+    }
+
+    const query = params.toString();
+    return query ? `${fullPath}?${query}` : fullPath;
   }
 }
 
