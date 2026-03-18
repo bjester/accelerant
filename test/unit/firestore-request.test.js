@@ -18,7 +18,7 @@ describe('FirestoreRequestDescriptor', () => {
 
     const descriptor = FirestoreRequestDescriptor.fromContext(context);
 
-    expect(descriptor.kind).to.equal('doc');
+    expect(descriptor.kind).to.equal('document');
     expect(descriptor.collectionPath).to.equal('users');
     expect(descriptor.docId).to.equal('u1');
     expect(descriptor.limit).to.equal(2);
@@ -62,6 +62,18 @@ describe('FirestoreRequestDescriptor', () => {
     );
 
     expect(first.toKey()).to.equal(second.toKey());
+  });
+
+  it('produces deterministic standardized URL independent of query param order', () => {
+    const first = FirestoreRequestDescriptor.fromContext(
+      makeContext('https://example.com/api/db/users?age__gte=21&orderBy=desc:createdAt&limit=2')
+    );
+    const second = FirestoreRequestDescriptor.fromContext(
+      makeContext('https://example.com/api/db/users?limit=2&orderBy=desc:createdAt&age__gte=21')
+    );
+
+    expect(first.toStandardizedURI('/api/db')).to.equal(second.toStandardizedURI('/api/db'));
+    expect(first.toStandardizedURI('/api/db')).to.equal('/api/db/users?age__gte=21&orderBy=desc%3AcreatedAt&limit=2');
   });
 
   it('builds firestore constraints from descriptor', async () => {
