@@ -178,7 +178,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
    */
   _getDescriptor(request, handler) {
     const apiPath = handler?.apiPath || this.options.apiPath || DEFAULT_API_PATH;
-    const context = new RequestContext(request, { pathPrefix: apiPath });
+    const context = new RequestContext(request.clone(), { pathPrefix: apiPath });
     return {
       descriptor: FirestoreRequestDescriptor.fromContext(context),
       apiPath,
