@@ -7,15 +7,9 @@
  * license that can be found in the LICENSE file or at
  * https://opensource.org/licenses/MIT.
  */
-import {StrategyHandler as BaseStrategyHandler} from 'workbox-strategies';
-import {
-  InvalidImplementationError,
-  ServerError
-} from "../../errors.js";
-import RequestContext from "../../request/index.js";
-import {
-  MethodNotAllowedError,
-} from "../../errors.js";
+import { StrategyHandler as BaseStrategyHandler } from 'workbox-strategies';
+import { InvalidImplementationError, MethodNotAllowedError, ServerError } from '../../errors.js';
+import RequestContext from '../../request/index.js';
 
 /**
  * @see https://github.com/GoogleChrome/workbox/blob/v7/packages/workbox-strategies/src/StrategyHandler.ts
@@ -94,10 +88,8 @@ export default class StrategyHandler extends BaseStrategyHandler {
    * @param {Request|string} input
    */
   async fetch(input) {
-    const {event} = this;
-    let request = (typeof input === 'string' || input instanceof String)
-      ? new Request(input)
-      : input;
+    const { event } = this;
+    let request = typeof input === 'string' || input instanceof String ? new Request(input) : input;
 
     if (!['same-origin', 'cors'].includes(request.mode)) {
       throw new InvalidImplementationError(`Unsupported request mode '${request.mode}'`);
@@ -106,13 +98,11 @@ export default class StrategyHandler extends BaseStrategyHandler {
     // If there is a fetchDidFail plugin, we need to save a clone of the
     // original request before it's either modified by a requestWillFetch
     // plugin or before the original request's body is consumed via fetch().
-    const originalRequest = this.hasCallback('fetchDidFail')
-      ? request.clone()
-      : null;
+    const originalRequest = this.hasCallback('fetchDidFail') ? request.clone() : null;
 
     try {
       for (const cb of this.iterateCallbacks('requestWillFetch')) {
-        request = await cb({request: request.clone(), event});
+        request = await cb({ request: request.clone(), event });
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -221,7 +211,7 @@ export default class StrategyHandler extends BaseStrategyHandler {
    * @return {Promise<Response>}
    * @protected
    */
-  async _doFetch(request) {
+  async _doFetch(_request) {
     throw new InvalidImplementationError('Method Not Implemented');
   }
 
@@ -232,7 +222,7 @@ export default class StrategyHandler extends BaseStrategyHandler {
    * @param {Response} response
    * @return {Promise<AlterIndex>}
    */
-  async prepareAlterIndex(name, alter, request, response) {
+  async prepareAlterIndex(_name, alter, _request, _response) {
     return alter;
   }
 }

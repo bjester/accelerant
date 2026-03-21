@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-import {createUser, teardown} from "../fixtures/auth.js";
+import { createUser, teardown } from '../fixtures/auth.js';
 
 test.describe('accelerant e2e test', () => {
   test.afterAll(async () => {
@@ -16,17 +16,19 @@ test.describe('accelerant e2e test', () => {
     await page.waitForFunction(() => window.accelerantReady !== undefined);
     await page.evaluate(() => window.accelerantReady);
     await page.waitForFunction(() => {
-      return navigator.serviceWorker.controller &&
-        navigator.serviceWorker.controller.scriptURL.endsWith('/sw.js');
+      return navigator.serviceWorker.controller?.scriptURL.endsWith('/sw.js');
     });
 
-    const signIn = await page.evaluate(async ({ email, password }) => {
-      return window.accelerantApi.auth.signIn(email, password);
-    }, { email, password });
+    const signIn = await page.evaluate(
+      async ({ email, password }) => {
+        return window.accelerantApi.auth.signIn(email, password);
+      },
+      { email, password },
+    );
     expect(signIn.status).toBe(200);
 
     await page.waitForFunction(() => {
-      return window.__getAuthIndicatorState && window.__getAuthIndicatorState().includes('signed-in');
+      return window.__getAuthIndicatorState?.().includes('signed-in');
     });
 
     const created = await page.evaluate(async () => {
@@ -64,8 +66,7 @@ test.describe('accelerant e2e test', () => {
     expect(signOut.status).toBe(200);
 
     await page.waitForFunction(() => {
-      return window.__getAuthIndicatorState && window.__getAuthIndicatorState().includes('signed-out');
+      return window.__getAuthIndicatorState?.().includes('signed-out');
     });
   });
-
 });

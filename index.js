@@ -3,16 +3,13 @@
 
 import Accelerant, { registerServiceWorker } from './src/index.js';
 
+export * from './src/errors.js';
 // Export the main library functions
-export { registerServiceWorker } from './src/index.js';
-
 // Also export individual modules for advanced usage
-export { default as Accelerant } from './src/index.js';
-
-export * from './src/strategy/index.js';
+export { default as Accelerant, registerServiceWorker } from './src/index.js';
 export * from './src/request/index.js';
 export * from './src/response/index.js';
-export * from './src/errors.js';
+export * from './src/strategy/index.js';
 
 // Default export for common usage
 export default {

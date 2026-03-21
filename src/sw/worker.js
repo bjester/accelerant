@@ -1,56 +1,53 @@
 // Service Worker main entry point
 // Sets up Workbox routing and registers all Accelerant routes
 import { setCatchHandler } from 'workbox-routing';
-
-import WorkerRuntime from './runtime.js';
 import { FirestorePath } from '../request/firestore.js';
+import WorkerRuntime from './runtime.js';
 // shim for firebase-storage (doh!)
 import '../shim/xhr.js';
 
+// Import handlers
+import {
+  GetStrategyHandler as AuthGetHandler,
+  PostStrategyHandler as AuthPostHandler,
+} from '../strategy/handler/auth.js';
+import {
+  DeleteStrategyHandler as FirestoreDeleteHandler,
+  GetStrategyHandler as FirestoreGetHandler,
+  HeadStrategyHandler as FirestoreHeadHandler,
+  PatchStrategyHandler as FirestorePatchHandler,
+  PostStrategyHandler as FirestorePostHandler,
+  PutStrategyHandler as FirestorePutHandler,
+} from '../strategy/handler/firestore.js';
+import { FunctionsStrategyHandler as FunctionsHandler } from '../strategy/handler/functions.js';
+import {
+  DeleteStrategyHandler as StorageDeleteHandler,
+  GetStrategyHandler as StorageGetHandler,
+  HeadStrategyHandler as StorageHeadHandler,
+  PutStrategyHandler as StoragePutHandler,
+} from '../strategy/handler/storage.js';
 // Import strategies
 import {
   CacheAfter,
   CacheFirst,
   CacheInvalidate,
-  StaleWhileRevalidate,
   NetworkOnly,
+  StaleWhileRevalidate,
 } from '../strategy/index.js';
-
-// Import handlers
-import {
-  PostStrategyHandler as AuthPostHandler,
-  GetStrategyHandler as AuthGetHandler
-} from '../strategy/handler/auth.js';
-import {
-  GetStrategyHandler as FirestoreGetHandler,
-  PostStrategyHandler as FirestorePostHandler,
-  PutStrategyHandler as FirestorePutHandler,
-  PatchStrategyHandler as FirestorePatchHandler,
-  DeleteStrategyHandler as FirestoreDeleteHandler,
-  HeadStrategyHandler as FirestoreHeadHandler,
-} from '../strategy/handler/firestore.js';
-import { FunctionsStrategyHandler as FunctionsHandler } from '../strategy/handler/functions.js';
-import {
-  GetStrategyHandler as StorageGetHandler,
-  HeadStrategyHandler as StorageHeadHandler,
-  PutStrategyHandler as StoragePutHandler,
-  DeleteStrategyHandler as StorageDeleteHandler,
-} from '../strategy/handler/storage.js';
 
 // Import plugins
 import {
   AnnouncementWorkboxPlugin,
-  CacheWorkboxPlugin,
-  IndexingWorkboxPlugin,
   CacheInvalidateWorkboxPlugin,
-  getCacheKey
+  CacheWorkboxPlugin,
+  getCacheKey,
+  IndexingWorkboxPlugin,
 } from '../strategy/plugins/core.js';
-import { FirestoreListenerWorkboxPlugin } from "../strategy/plugins/firestore.js";
-
+import { FirestoreListenerWorkboxPlugin } from '../strategy/plugins/firestore.js';
 
 const API_AUTH_PATH = 'auth';
 const API_FIRESTORE_PATH = 'db';
-const API_SIGNALS_PATH = 'signals';
+// const API_SIGNALS_PATH = 'signals';
 const API_FUNCTIONS_PATH = 'fn';
 const API_STORAGE_PATH = 'fs';
 
@@ -67,7 +64,7 @@ export function registerRoutes(config, routePaths = {}) {
   const {
     auth = API_AUTH_PATH,
     firestore = API_FIRESTORE_PATH,
-    signals = API_SIGNALS_PATH,
+    // signals = API_SIGNALS_PATH,
     functions = API_FUNCTIONS_PATH,
     storage = API_STORAGE_PATH,
   } = routePaths;
@@ -90,8 +87,8 @@ export function registerRoutes(config, routePaths = {}) {
   }
 
   // Set up catch-all handler for unmatched routes
-  setCatchHandler(({ event }) => {
-    return runtime.response.json.notFound('Route not found');
+  setCatchHandler(({ request }) => {
+    return runtime.response.json.notFound(`Route not found: ${request.url}`);
   });
 }
 
@@ -110,27 +107,19 @@ function registerAuthRoutes(apiPath, runtime) {
   // ===========
   // GET /api/auth/status - Get auth status
   runtime.routeGet(apiPath, StaleWhileRevalidate, AuthGetHandler, {
-    plugins: [
-      cachePlugin,
-    ]
+    plugins: [cachePlugin],
   });
 
   // POST /api/auth/sign-in - Sign in with email/password
   runtime.routePost(`${apiPath}/sign-in`, CacheAfter, AuthPostHandler, {
     apiPath: runtime.getApiPath(apiPath),
-    plugins: [
-      cachePlugin,
-      announcementPlugin,
-    ]
+    plugins: [cachePlugin, announcementPlugin],
   });
 
   // POST /api/auth/sign-out - Sign out
   runtime.routePost(`${apiPath}/sign-out`, CacheInvalidate, AuthPostHandler, {
     apiPath: runtime.getApiPath(apiPath),
-    plugins: [
-      cachePlugin,
-      announcementPlugin,
-    ]
+    plugins: [cachePlugin, announcementPlugin],
   });
 }
 
@@ -140,7 +129,7 @@ function registerAuthRoutes(apiPath, runtime) {
  * @param {WorkerRuntime} runtime
  */
 function registerFirestoreRoutes(apiPath, runtime) {
-  function keysFunc(request, responseData, handler) {
+  function keysFunc(request, _responseData, handler) {
     const path = new FirestorePath(request, handler.apiPath);
     const keys = [];
 
@@ -173,19 +162,19 @@ function registerFirestoreRoutes(apiPath, runtime) {
 
       for (const indexKey of keysFunc(request, {}, handler)) {
         // index keys are firestore paths
-        requestUrls.add(getCacheKey({url: `${handler.apiPath}/${indexKey}`}).url);
-        const indexValues = await urlsIndex.get(indexKey) || [];
+        requestUrls.add(getCacheKey({ url: `${handler.apiPath}/${indexKey}` }).url);
+        const indexValues = (await urlsIndex.get(indexKey)) || [];
         for (const indexValue of indexValues) {
           // index values are full urls
           requestUrls.add(indexValue);
         }
       }
 
-      return Array.from(requestUrls).map(url => getCacheKey({ url }));
-    }
+      return Array.from(requestUrls).map((url) => getCacheKey({ url }));
+    },
   });
   const firestoreListenerPlugin = new FirestoreListenerWorkboxPlugin(runtime, {
-    name: 'firestore.listeners'
+    name: 'firestore.listeners',
   });
 
   // Firestore routes
@@ -195,20 +184,12 @@ function registerFirestoreRoutes(apiPath, runtime) {
   // GET /api/db/{collection}/{doc} - Get document by ID {doc}
   // GET /api/db/{collection}/{doc}/{subcollection} - Get document's sub collection
   runtime.routeGet(apiPath, CacheFirst, FirestoreGetHandler, {
-    plugins: [
-      idIndexPlugin,
-      firestoreListenerPlugin,
-      cachePlugin,
-      urlIndexPlugin,
-    ]
+    plugins: [idIndexPlugin, firestoreListenerPlugin, cachePlugin, urlIndexPlugin],
   });
 
   // HEAD /api/db/{collection}/{doc} - Check document existence
   runtime.routeHead(apiPath, CacheFirst, FirestoreHeadHandler, {
-    plugins: [
-      cachePlugin,
-      urlIndexPlugin,
-    ]
+    plugins: [cachePlugin, urlIndexPlugin],
   });
 
   // POST /api/db/{collection} - Create document with random ID
@@ -219,7 +200,7 @@ function registerFirestoreRoutes(apiPath, runtime) {
       cacheInvalidatePlugin,
       urlIndexPlugin,
       announcementPlugin,
-    ]
+    ],
   });
 
   // PUT /api/db/{collection}/{doc} - Create document (fail if exists)
@@ -230,7 +211,7 @@ function registerFirestoreRoutes(apiPath, runtime) {
       cacheInvalidatePlugin,
       urlIndexPlugin,
       announcementPlugin,
-    ]
+    ],
   });
 
   // PATCH /api/db/{collection}/{doc} - Update document (merge)
@@ -241,7 +222,7 @@ function registerFirestoreRoutes(apiPath, runtime) {
       cacheInvalidatePlugin,
       urlIndexPlugin,
       announcementPlugin,
-    ]
+    ],
   });
 
   // DELETE /api/db/{collection}/{doc} - Delete document
@@ -252,7 +233,7 @@ function registerFirestoreRoutes(apiPath, runtime) {
       cacheInvalidatePlugin,
       urlIndexPlugin,
       announcementPlugin,
-    ]
+    ],
   });
 }
 
@@ -263,7 +244,7 @@ function registerFirestoreRoutes(apiPath, runtime) {
  */
 function registerFunctionRoutes(apiPath, runtime) {
   runtime.routePost(apiPath, NetworkOnly, FunctionsHandler, {
-    name: 'run_test'
+    name: 'run_test',
   });
 }
 
@@ -282,30 +263,22 @@ function registerStorageRoutes(apiPath, runtime) {
   // ==============
   // GET /api/fs/{path} - Download file
   runtime.routeGet(apiPath, CacheFirst, StorageGetHandler, {
-    plugins: [
-      cachePlugin,
-    ]
+    plugins: [cachePlugin],
   });
 
   // HEAD /api/fs/{path} - Check file existence
   runtime.routeHead(apiPath, CacheFirst, StorageHeadHandler, {
-    plugins: [
-      cachePlugin,
-    ]
+    plugins: [cachePlugin],
   });
 
   // PUT /api/fs/{path} - Upload file
   runtime.routePut(apiPath, CacheAfter, StoragePutHandler, {
-    plugins: [
-      announcementPlugin,
-    ]
+    plugins: [announcementPlugin],
   });
 
   // DELETE /api/fs/{path} - Delete file
   runtime.routeDelete(apiPath, CacheInvalidate, StorageDeleteHandler, {
-    plugins: [
-      announcementPlugin,
-    ]
+    plugins: [announcementPlugin],
   });
 }
 
@@ -320,7 +293,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', (_event) => {
   // Let Workbox handle the fetch event
   // Routes will be matched and handled by the registered routes
 });

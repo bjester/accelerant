@@ -39,6 +39,29 @@ Accepted forms:
 
 If `requireClaims` is omitted or `null`, any valid user can sign in.
 
+## Development setup
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and [Node.js](https://nodejs.org/) (v22+), then:
+
+```bash
+# Install JS dependencies
+pnpm install
+
+# Install and register pre-commit hooks
+uv tool install prek
+prek install
+```
+
+After setup, commits will automatically run Biome (lint + format). If Biome modifies any files, the commit is blocked — review the diff, `git add` the changes, and commit again.
+
+### Lint and format
+
+```bash
+pnpm lint        # check only
+pnpm lint:fix    # check and auto-fix
+pnpm format      # format only
+```
+
 ## E2E testing
 
 E2E uses Playwright + Vite and runs against Firebase emulators.

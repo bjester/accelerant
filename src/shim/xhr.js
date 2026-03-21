@@ -30,21 +30,21 @@
 /* global module */
 /* global EventTarget, AbortController, DOMException, ProgressEvent */
 
-const sHeaders = Symbol("headers");
-const sRespHeaders = Symbol("response headers");
-const sAbortController = Symbol("AbortController");
-const sMethod = Symbol("method");
-const sURL = Symbol("URL");
-const sMIME = Symbol("MIME");
-const sDispatch = Symbol("dispatch");
-const sErrored = Symbol("errored");
-const sTimeout = Symbol("timeout");
-const sTimedOut = Symbol("timedOut");
-const sIsResponseText = Symbol("isResponseText");
+const sHeaders = Symbol('headers');
+const sRespHeaders = Symbol('response headers');
+const sAbortController = Symbol('AbortController');
+const sMethod = Symbol('method');
+const sURL = Symbol('URL');
+const sMIME = Symbol('MIME');
+const sDispatch = Symbol('dispatch');
+const sErrored = Symbol('errored');
+const sTimeout = Symbol('timeout');
+const sTimedOut = Symbol('timedOut');
+const sIsResponseText = Symbol('isResponseText');
 
 export class ProgressEvent extends CustomEvent {
   constructor(type, options = {}) {
-    const {loaded = null, total = null, lengthComputable = null} = options;
+    const { loaded = null, total = null, lengthComputable = null } = options;
     super(type, options);
     this._loaded = loaded;
     this._total = total;
@@ -69,19 +69,19 @@ export default class XMLHttpRequest extends EventTarget {
     super();
     this.readyState = this.constructor.UNSENT;
     this.response = null;
-    this.responseType = "";
-    this.responseURL = "";
+    this.responseType = '';
+    this.responseURL = '';
     this.status = 0;
-    this.statusText = "";
+    this.statusText = '';
     this.timeout = 0;
     this.withCredentials = false;
     this[sHeaders] = Object.create(null);
-    this[sHeaders].accept = "*/*";
+    this[sHeaders].accept = '*/*';
     this[sRespHeaders] = Object.create(null);
     this[sAbortController] = new AbortController();
-    this[sMethod] = "";
-    this[sURL] = "";
-    this[sMIME] = "";
+    this[sMethod] = '';
+    this[sURL] = '';
+    this[sMIME] = '';
     this[sErrored] = false;
     this[sTimeout] = 0;
     this[sTimedOut] = false;
@@ -112,20 +112,20 @@ export default class XMLHttpRequest extends EventTarget {
 
   get responseText() {
     if (this[sErrored]) return null;
-    if (this.readyState < this.constructor.HEADERS_RECEIVED) return "";
+    if (this.readyState < this.constructor.HEADERS_RECEIVED) return '';
     if (this[sIsResponseText]) return this.response;
-    throw new DOMException("Response type not set to text", "InvalidStateError");
+    throw new DOMException('Response type not set to text', 'InvalidStateError');
   }
 
   get responseXML() {
-    throw new Error("XML not supported");
+    throw new Error('XML not supported');
   }
 
   [sDispatch](evt) {
     const attr = `on${evt.type}`;
-    if (typeof this[attr] === "function") {
+    if (typeof this[attr] === 'function') {
       this.addEventListener(evt.type, this[attr].bind(this), {
-        once: true
+        once: true,
       });
     }
     this.dispatchEvent(evt);
@@ -139,7 +139,7 @@ export default class XMLHttpRequest extends EventTarget {
 
   setRequestHeader(header, value) {
     header = String(header).toLowerCase();
-    if (typeof this[sHeaders][header] === "undefined") {
+    if (typeof this[sHeaders][header] === 'undefined') {
       this[sHeaders][header] = String(value);
     } else {
       this[sHeaders][header] += `, ${value}`;
@@ -151,13 +151,15 @@ export default class XMLHttpRequest extends EventTarget {
   }
 
   getAllResponseHeaders() {
-    if (this[sErrored] || this.readyState < this.constructor.HEADERS_RECEIVED) return "";
-    return Object.entries(this[sRespHeaders]).map(([header, value]) => `${header}: ${value}`).join("\r\n");
+    if (this[sErrored] || this.readyState < this.constructor.HEADERS_RECEIVED) return '';
+    return Object.entries(this[sRespHeaders])
+      .map(([header, value]) => `${header}: ${value}`)
+      .join('\r\n');
   }
 
   getResponseHeader(headerName) {
     const value = this[sRespHeaders][String(headerName).toLowerCase()];
-    return typeof value === "string" ? value : null;
+    return typeof value === 'string' ? value : null;
   }
 
   open(method, url) {
@@ -172,11 +174,13 @@ export default class XMLHttpRequest extends EventTarget {
     if (uploadedBytes) {
       this._uploadedBytes = uploadedBytes;
     }
-    this.upload.dispatchEvent(new ProgressEvent(eventName, {
-      loaded: this._uploadedBytes,
-      total: this._totalBytes,
-      lengthComputable: true
-    }));
+    this.upload.dispatchEvent(
+      new ProgressEvent(eventName, {
+        loaded: this._uploadedBytes,
+        total: this._totalBytes,
+        lengthComputable: true,
+      }),
+    );
   }
 
   send(body = null) {
@@ -190,17 +194,18 @@ export default class XMLHttpRequest extends EventTarget {
     }
 
     // 256 * 1024 comes from Firebase, duplex stream requires https
-    const isStreaming = body instanceof Blob && body.size >= 256 * 1024 && /^https/.test(this[sURL]);
-    const responseType = this.responseType || "text";
-    this[sIsResponseText] = responseType === "text";
+    const isStreaming =
+      body instanceof Blob && body.size >= 256 * 1024 && /^https/.test(this[sURL]);
+    const responseType = this.responseType || 'text';
+    this[sIsResponseText] = responseType === 'text';
 
     if (isStreaming) {
       const bodyReader = body.stream().getReader();
 
       sendBody = new ReadableStream({
-        type: "bytes",
+        type: 'bytes',
         pull: async (controller) => {
-          const {done, value} = await bodyReader.read();
+          const { done, value } = await bodyReader.read();
 
           if (done) {
             this._updateProgress('loadend');
@@ -216,30 +221,30 @@ export default class XMLHttpRequest extends EventTarget {
             this._updateProgress('progress', this._uploadedBytes + value.byteLength);
             controller.enqueue(value);
           }
-        }
-      })
+        },
+      });
     }
 
     const fetchOpts = {
-      method: this[sMethod] || "GET",
+      method: this[sMethod] || 'GET',
       signal: this[sAbortController].signal,
       headers: this[sHeaders],
-      credentials: this.withCredentials ? "include" : "same-origin",
+      credentials: this.withCredentials ? 'include' : 'same-origin',
       body: sendBody,
     };
 
     if (isStreaming) {
-      fetchOpts['duplex'] = 'half';
+      fetchOpts.duplex = 'half';
     }
 
-    const handleError = err => {
-      let eventName = "abort";
+    const handleError = (err) => {
+      let eventName = 'abort';
 
-      if (err.name !== "AbortError") {
+      if (err.name !== 'AbortError') {
         this[sErrored] = true;
-        eventName = "error";
+        eventName = 'error';
       } else if (this[sTimedOut]) {
-        eventName = "timeout";
+        eventName = 'timeout';
       }
 
       this[sDispatch](new CustomEvent(eventName));
@@ -259,45 +264,45 @@ export default class XMLHttpRequest extends EventTarget {
       } finally {
         this.readyState = this.constructor.DONE;
         clearTimeout(this[sTimeout]);
-        this[sDispatch](new CustomEvent("loadstart"));
+        this[sDispatch](new CustomEvent('loadstart'));
       }
 
       this.responseURL = resp.url;
       this.status = resp.status;
       this.statusText = resp.statusText;
-      const finalMIME = this[sMIME] || this[sRespHeaders]["content-type"] || "text/plain";
+      const finalMIME = this[sMIME] || this[sRespHeaders]['content-type'] || 'text/plain';
       Object.assign(this[sRespHeaders], resp.headers);
 
       switch (responseType) {
-        case "text":
+        case 'text':
           this.response = await resp.text();
           break;
-        case "blob":
+        case 'blob':
           this.response = new Blob([await resp.arrayBuffer()], { type: finalMIME });
           break;
-        case "arraybuffer":
+        case 'arraybuffer':
           this.response = await resp.arrayBuffer();
           break;
-        case "json":
+        case 'json':
           this.response = await resp.json();
           break;
       }
 
-      this[sDispatch](new CustomEvent("load"));
+      this[sDispatch](new CustomEvent('load'));
 
       if (isStreaming) {
         this._updateProgress('load');
       }
     };
 
-    runRequest().finally(() => this[sDispatch](new CustomEvent("loadend")));
+    runRequest().finally(() => this[sDispatch](new CustomEvent('loadend')));
   }
 }
 
-if (typeof globalThis === "object") {
+if (typeof globalThis === 'object') {
   globalThis.XMLHttpRequest = XMLHttpRequest;
 }
 
-if (typeof self === "object") {
+if (typeof self === 'object') {
   self.XMLHttpRequest = XMLHttpRequest;
 }

@@ -1,4 +1,4 @@
-import EventEmitter from "../../events.js";
+import EventEmitter from '../../events.js';
 
 /**
  *
@@ -9,7 +9,7 @@ import EventEmitter from "../../events.js";
  * @param {HeadersInit|object} [headers]
  * @return {Response}
  */
-export function newResponse(response, body, {status = null, statusText = null}, headers = {}) {
+export function newResponse(response, body, { status = null, statusText = null }, headers = {}) {
   if (!body) {
     body = response.body;
   }
@@ -22,16 +22,12 @@ export function newResponse(response, body, {status = null, statusText = null}, 
   status = status || response.status;
   statusText = statusText || response.statusText;
 
-  return new Response(
-    body,
-    {
-      status,
-      statusText,
-      headers: newHeaders
-    }
-  );
+  return new Response(body, {
+    status,
+    statusText,
+    headers: newHeaders,
+  });
 }
-
 
 export default class WorkboxPlugin {
   /**

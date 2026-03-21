@@ -183,7 +183,9 @@ describe('FirestoreListenerWorkboxPlugin', () => {
     const response = new Response('[]', { status: 200 });
 
     const broadRequest = new Request('http://localhost/api/db/users', { method: 'GET' });
-    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', { method: 'GET' });
+    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', {
+      method: 'GET',
+    });
 
     plugin.targetsByUrl.set(broadRequest.url, {
       listenKey: '/api/db/users',
@@ -225,7 +227,9 @@ describe('FirestoreListenerWorkboxPlugin', () => {
     const response = new Response('[]', { status: 200 });
 
     const broadRequest = new Request('http://localhost/api/db/users', { method: 'GET' });
-    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', { method: 'GET' });
+    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', {
+      method: 'GET',
+    });
 
     plugin.targetsByUrl.set(broadRequest.url, {
       listenKey: '/api/db/users',
@@ -268,7 +272,9 @@ describe('FirestoreListenerWorkboxPlugin', () => {
     const response = new Response('[]', { status: 200 });
 
     const broadRequest = new Request('http://localhost/api/db/users', { method: 'GET' });
-    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', { method: 'GET' });
+    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', {
+      method: 'GET',
+    });
 
     plugin.targetsByUrl.set(broadRequest.url, {
       listenKey: '/api/db/users',
@@ -317,7 +323,9 @@ describe('FirestoreListenerWorkboxPlugin', () => {
     const response = new Response('[]', { status: 200 });
 
     const broadRequest = new Request('http://localhost/api/db/users', { method: 'GET' });
-    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', { method: 'GET' });
+    const narrowRequest = new Request('http://localhost/api/db/users?role=admin', {
+      method: 'GET',
+    });
 
     plugin.targetsByUrl.set(broadRequest.url, {
       listenKey: '/api/db/users',

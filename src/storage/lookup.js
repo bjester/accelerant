@@ -1,5 +1,5 @@
-import { InMemoryStorage } from "./shim.js";
-import Persistence from "./persistence.js";
+import Persistence from './persistence.js';
+import { InMemoryStorage } from './shim.js';
 
 /**
  * @type {Map<string, PrefixIndex>}
@@ -20,7 +20,7 @@ class IndexInterface {
    * @param {string} key
    * @return {Promise<Set<string>>}
    */
-  async get(key) {
+  async get(_key) {
     return new Set();
   }
 
@@ -28,7 +28,7 @@ class IndexInterface {
    * @param {string} key
    * @param {function(values: Set<string>): Array<string>|Set<string>|null|Promise<Array<string>|Set<string>|null>} callback
    */
-  async update(key, callback) {}
+  async update(_key, _callback) {}
 }
 
 /**

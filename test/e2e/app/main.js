@@ -16,7 +16,7 @@ const config = {
     apiKey: 'demo',
     appId: 'demo',
     projectId: 'demo-accelerant',
-    storageBucket: 'demo-accelerant.appspot.com'
+    storageBucket: 'demo-accelerant.appspot.com',
   },
   useEmulators: true,
   emulatorHost: '127.0.0.1',
@@ -27,8 +27,8 @@ const config = {
   requireClaims: null,
   broadcastChannelName: 'accelerant-e2e',
   firestoreCache: {
-    minHits: 1
-  }
+    minHits: 1,
+  },
 };
 
 export const accelerantReady = (async () => {
@@ -49,50 +49,52 @@ async function apiFetch(path, options = {}) {
   const contentType = response.headers.get('Content-Type') || '';
   let body = null;
   if (response.status !== 204) {
-    body = contentType.includes('application/json')
-      ? await response.json()
-      : await response.text();
+    body = contentType.includes('application/json') ? await response.json() : await response.text();
   }
   return { status: response.status, headers: Object.fromEntries(response.headers.entries()), body };
 }
 
-const generateString = (len) => [...Array(len)].map(() => (Math.random()*36|0).toString(36)).join('')
+const generateString = (len) =>
+  [...Array(len)].map(() => ((Math.random() * 36) | 0).toString(36)).join('');
 
 window.accelerantApi = {
   auth: {
     status: () => apiFetch('/api/auth/status', { method: 'GET' }),
-    signIn: (email, password) => apiFetch('/api/auth/sign-in', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    }),
-    signOut: () => apiFetch('/api/auth/sign-out', { method: 'POST' })
+    signIn: (email, password) =>
+      apiFetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      }),
+    signOut: () => apiFetch('/api/auth/sign-out', { method: 'POST' }),
   },
   firestore: {
     getDoc: (collection, id) => apiFetch(`/api/db/${collection}/${id}`),
     list: (collection, query = '') => apiFetch(`/api/db/${collection}${query}`),
-    post: (collection, data) => apiFetch(`/api/db/${collection}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
+    post: (collection, data) =>
+      apiFetch(`/api/db/${collection}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }),
   },
   storage: {
-    put: (path, data, contentType) => apiFetch(`/api/fs/${path}`, {
-      method: 'PUT',
-      headers: contentType ? { 'Content-Type': contentType } : {},
-      body: data
-    }),
+    put: (path, data, contentType) =>
+      apiFetch(`/api/fs/${path}`, {
+        method: 'PUT',
+        headers: contentType ? { 'Content-Type': contentType } : {},
+        body: data,
+      }),
     get: (path) => apiFetch(`/api/fs/${path}`),
-    head: (path) => apiFetch(`/api/fs/${path}`, { method: 'HEAD' })
-  }
+    head: (path) => apiFetch(`/api/fs/${path}`, { method: 'HEAD' }),
+  },
 };
 
 window.accelerantReady = accelerantReady;
 
 const authIndicator = document.getElementById('auth-indicator');
 const authStatusText = document.getElementById('auth-status-text');
-const fsIndicator = document.getElementById('fs-indicator');
+const _fsIndicator = document.getElementById('fs-indicator');
 const fsStatusText = document.getElementById('fs-status-text');
 
 const setAuthStatus = (state) => {
@@ -161,7 +163,15 @@ const formatLog = (value) => (typeof value === 'string' ? value : JSON.stringify
 const extractId = (result) => {
   const body = result?.body;
   if (!body) return null;
-  return body.id || body.docId || body.name || body?.data?.id || body?.data?.name || body?.result?.id || null;
+  return (
+    body.id ||
+    body.docId ||
+    body.name ||
+    body?.data?.id ||
+    body?.data?.name ||
+    body?.result?.id ||
+    null
+  );
 };
 
 const createLogEntry = (result) => {
@@ -218,10 +228,16 @@ btnFsDelete.addEventListener('click', async () => {
 const btnStorageCreate = document.getElementById('btn-storage-create');
 const btnStorageHead = document.getElementById('btn-storage-head');
 const btnStorageFetch = document.getElementById('btn-storage-fetch');
-const btnStorageDelete = document.getElementById('btn-storage-delete');
+const _btnStorageDelete = document.getElementById('btn-storage-delete');
 
 btnStorageCreate.addEventListener('click', async () => {
-  log(await window.accelerantApi.storage.put('fixtures/e2e.txt', 'hello storage | ' + generateString(256 * 1024), 'text/plain'));
+  log(
+    await window.accelerantApi.storage.put(
+      'fixtures/e2e.txt',
+      `hello storage | ${generateString(256 * 1024)}`,
+      'text/plain',
+    ),
+  );
 });
 
 btnStorageHead.addEventListener('click', async () => {

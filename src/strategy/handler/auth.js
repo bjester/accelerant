@@ -1,10 +1,8 @@
-import {signInWithEmailAndPassword, signOut} from "firebase/auth";
-import StrategyHandler from "./index.js";
-
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import StrategyHandler from './index.js';
 
 const CACHE_NAME = 'auth';
 const STATUS_ENDPOINT = 'status';
-
 
 class AuthStrategyHandler extends StrategyHandler {
   static get cacheName() {
@@ -15,7 +13,7 @@ class AuthStrategyHandler extends StrategyHandler {
     return this.runtime.firebase.auth;
   }
 
-  async getCacheKey(request, mode) {
+  async getCacheKey(_request, _mode) {
     return new Request(`${self.location.origin}${this.apiPath}/${STATUS_ENDPOINT}`);
   }
 
@@ -81,7 +79,7 @@ class AuthStrategyHandler extends StrategyHandler {
           id: this.auth.currentUser.uid,
           name: this.auth.currentUser.displayName,
           email: this.auth.currentUser.email,
-        }
+        },
       });
     } else {
       return this.runtime.response.json.ok({
@@ -93,7 +91,9 @@ class AuthStrategyHandler extends StrategyHandler {
 }
 
 export class PostStrategyHandler extends AuthStrategyHandler {
-  get allowedMethods() { return ['POST']; }
+  get allowedMethods() {
+    return ['POST'];
+  }
 
   /**
    * @param {Request} request
@@ -113,13 +113,13 @@ export class PostStrategyHandler extends AuthStrategyHandler {
         return await this._handleSignOut(context);
       default:
         console.log('path not found', context.path);
-        return this.runtime.response.json.notFound('not-found: ' + context.path);
+        return this.runtime.response.json.notFound(`not-found: ${context.path}`);
     }
   }
 
   async _handleSignIn(context) {
-    const {email, password} = await context.json();
-    const {user} = await signInWithEmailAndPassword(this.auth, email, password);
+    const { email, password } = await context.json();
+    const { user } = await signInWithEmailAndPassword(this.auth, email, password);
     const idTokenResult = await user.getIdTokenResult();
 
     const requiredClaims = this.runtime.config?.requireClaims || null;
@@ -133,14 +133,16 @@ export class PostStrategyHandler extends AuthStrategyHandler {
     return await this._handleStatus();
   }
 
-  async _handleSignOut(context) {
+  async _handleSignOut(_context) {
     await signOut(this.auth);
     return await this._handleStatus();
   }
 }
 
 export class GetStrategyHandler extends AuthStrategyHandler {
-  get allowedMethods() { return ['GET']; }
+  get allowedMethods() {
+    return ['GET'];
+  }
 
   async _doFetch(request) {
     const context = this._getContext(request);

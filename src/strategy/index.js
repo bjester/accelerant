@@ -1,19 +1,15 @@
 import {
-  Strategy as BaseStrategy,
   CacheFirst as BaseCacheFirst,
   CacheOnly as BaseCacheOnly,
   NetworkFirst as BaseNetworkFirst,
   NetworkOnly as BaseNetworkOnly,
   StaleWhileRevalidate as BaseStaleWhileRevalidate,
+  Strategy as BaseStrategy,
 } from 'workbox-strategies';
-import {
-  WorkboxError,
-  InvalidImplementationError,
-  MethodNotAllowedError
-} from '../errors.js';
-import StrategyHandlerFactory from "./handler/factory.js";
-import {StrategyHandler} from "workbox-strategies/src/StrategyHandler.ts";
-import {CacheInvalidateWorkboxPlugin} from "./plugins/core.js";
+import { StrategyHandler } from 'workbox-strategies/src/StrategyHandler.ts';
+import { WorkboxError } from '../errors.js';
+import StrategyHandlerFactory from './handler/factory.js';
+import { CacheInvalidateWorkboxPlugin } from './plugins/core.js';
 
 /**
  * @typedef StrategyOptions
@@ -35,18 +31,16 @@ import {CacheInvalidateWorkboxPlugin} from "./plugins/core.js";
  * @param {Object} [matchOptions]
  * @return {{superOptions: Object<T>, otherOptions: Object<T>, [StrategyOptions]}}
  */
-function splitOptions(
-  {
-    runtime,
-    handlerFactory = null,
-    cacheName = undefined,
-    plugins = [],
-    fetchOptions = {},
-    matchOptions = {},
-    ...otherOptions
-  } = {}
-) {
-  const superOptions = {cacheName, plugins, fetchOptions, matchOptions};
+function splitOptions({
+  runtime,
+  handlerFactory = null,
+  cacheName = undefined,
+  plugins = [],
+  fetchOptions = {},
+  matchOptions = {},
+  ...otherOptions
+} = {}) {
+  const superOptions = { cacheName, plugins, fetchOptions, matchOptions };
   return {
     runtime,
     handlerFactory: handlerFactory || new StrategyHandlerFactory(runtime),
@@ -72,21 +66,14 @@ function _handleAll(options) {
 
   const event = options.event;
   const request =
-    typeof options.request === 'string'
-      ? new Request(options.request)
-      : options.request;
+    typeof options.request === 'string' ? new Request(options.request) : options.request;
   const params = 'params' in options ? options.params : undefined;
 
-  const initialHandler = new StrategyHandler(this, {event, request, params});
+  const initialHandler = new StrategyHandler(this, { event, request, params });
   const handler = this.handlerFactory.build(this, initialHandler);
 
   const responseDone = this._getResponse(handler, request, event);
-  const handlerDone = this._awaitComplete(
-    responseDone,
-    handler,
-    request,
-    event
-  );
+  const handlerDone = this._awaitComplete(responseDone, handler, request, event);
 
   // Return an array of promises, suitable for use with Promise.all().
   return [responseDone, handlerDone];
@@ -97,7 +84,7 @@ export class Strategy extends BaseStrategy {
    * @param {Object|StrategyOptions} options
    */
   constructor(options) {
-    const { runtime, handlerFactory, superOptions, otherOptions} = splitOptions(options);
+    const { runtime, handlerFactory, superOptions, otherOptions } = splitOptions(options);
     super(superOptions);
     this.runtime = runtime;
     this.handlerFactory = handlerFactory;
@@ -118,7 +105,7 @@ export class Strategy extends BaseStrategy {
    * @param {FetchEvent|HandlerCallbackOptions} options
    * @return {[Promise<Response>, Promise<void>]}
    */
-  handleAll = _handleAll
+  handleAll = _handleAll;
 }
 
 export class CacheFirst extends BaseCacheFirst {
@@ -126,7 +113,7 @@ export class CacheFirst extends BaseCacheFirst {
    * @param {Object|StrategyOptions} options
    */
   constructor(options) {
-    const { runtime, handlerFactory, superOptions, otherOptions} = splitOptions(options);
+    const { runtime, handlerFactory, superOptions, otherOptions } = splitOptions(options);
     super(superOptions);
     this.runtime = runtime;
     this.handlerFactory = handlerFactory;
@@ -137,7 +124,7 @@ export class CacheFirst extends BaseCacheFirst {
    * @param {FetchEvent|HandlerCallbackOptions} options
    * @return {[Promise<Response>, Promise<void>]}
    */
-  handleAll = _handleAll
+  handleAll = _handleAll;
 }
 
 export class CacheAfter extends Strategy {
@@ -159,7 +146,7 @@ export class CacheAfter extends Strategy {
     }
 
     if (!response) {
-      throw new WorkboxError('no-response', {url: request.url, error});
+      throw new WorkboxError('no-response', { url: request.url, error });
     }
     return response;
   }
@@ -171,8 +158,9 @@ export class CacheInvalidate extends Strategy {
    */
   constructor(options) {
     super(options);
-    const cacheInvalidationPlugin = this.plugins
-      .find(p => p instanceof CacheInvalidateWorkboxPlugin);
+    const cacheInvalidationPlugin = this.plugins.find(
+      (p) => p instanceof CacheInvalidateWorkboxPlugin,
+    );
 
     // add the invalidation plugin if not already present
     if (!cacheInvalidationPlugin) {
@@ -186,7 +174,7 @@ export class CacheOnly extends BaseCacheOnly {
    * @param {Object|StrategyOptions} options
    */
   constructor(options) {
-    const { runtime, handlerFactory, superOptions, otherOptions} = splitOptions(options);
+    const { runtime, handlerFactory, superOptions, otherOptions } = splitOptions(options);
     super(superOptions);
     this.runtime = runtime;
     this.handlerFactory = handlerFactory;
@@ -197,7 +185,7 @@ export class CacheOnly extends BaseCacheOnly {
    * @param {FetchEvent|HandlerCallbackOptions} options
    * @return {[Promise<Response>, Promise<void>]}
    */
-  handleAll = _handleAll
+  handleAll = _handleAll;
 }
 
 export class NetworkFirst extends BaseNetworkFirst {
@@ -205,7 +193,7 @@ export class NetworkFirst extends BaseNetworkFirst {
    * @param {Object|StrategyOptions} options
    */
   constructor(options) {
-    const { runtime, handlerFactory, superOptions, otherOptions} = splitOptions(options);
+    const { runtime, handlerFactory, superOptions, otherOptions } = splitOptions(options);
     super(superOptions);
     this.runtime = runtime;
     this.handlerFactory = handlerFactory;
@@ -216,7 +204,7 @@ export class NetworkFirst extends BaseNetworkFirst {
    * @param {FetchEvent|HandlerCallbackOptions} options
    * @return {[Promise<Response>, Promise<void>]}
    */
-  handleAll = _handleAll
+  handleAll = _handleAll;
 }
 
 export class NetworkOnly extends BaseNetworkOnly {
@@ -224,7 +212,7 @@ export class NetworkOnly extends BaseNetworkOnly {
    * @param {Object|StrategyOptions} options
    */
   constructor(options) {
-    const { runtime, handlerFactory, superOptions, otherOptions} = splitOptions(options);
+    const { runtime, handlerFactory, superOptions, otherOptions } = splitOptions(options);
     super(superOptions);
     this.runtime = runtime;
     this.handlerFactory = handlerFactory;
@@ -235,7 +223,7 @@ export class NetworkOnly extends BaseNetworkOnly {
    * @param {FetchEvent|HandlerCallbackOptions} options
    * @return {[Promise<Response>, Promise<void>]}
    */
-  handleAll = _handleAll
+  handleAll = _handleAll;
 }
 
 export class StaleWhileRevalidate extends BaseStaleWhileRevalidate {
@@ -243,7 +231,7 @@ export class StaleWhileRevalidate extends BaseStaleWhileRevalidate {
    * @param {Object|StrategyOptions} options
    */
   constructor(options) {
-    const { runtime, handlerFactory, superOptions, otherOptions} = splitOptions(options);
+    const { runtime, handlerFactory, superOptions, otherOptions } = splitOptions(options);
     super(superOptions);
     this.runtime = runtime;
     this.handlerFactory = handlerFactory;
@@ -254,5 +242,5 @@ export class StaleWhileRevalidate extends BaseStaleWhileRevalidate {
    * @param {FetchEvent|HandlerCallbackOptions} options
    * @return {[Promise<Response>, Promise<void>]}
    */
-  handleAll = _handleAll
+  handleAll = _handleAll;
 }

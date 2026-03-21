@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import ResponseFactory from '../../src/response/index.js';
 import {
   BadRequestError,
-  MethodNotAllowedError,
   InvalidImplementationError,
-  ServerError
+  MethodNotAllowedError,
+  ServerError,
 } from '../../src/errors.js';
+import ResponseFactory from '../../src/response/index.js';
 
 describe('ResponseFactory.fromError', () => {
   it('maps BadRequestError to 400', async () => {

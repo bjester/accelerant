@@ -8,7 +8,7 @@ export class WorkboxError extends Error {
   toString() {
     const name = this.constructor.name;
     const message = this.message ? `${this.message} ` : '';
-    const details = this.details ? '| ' + JSON.stringify(this.details) : '';
+    const details = this.details ? `| ${JSON.stringify(this.details)}` : '';
     return `${name}: ${message}[${this.status}] ${details}`.trim();
   }
 }

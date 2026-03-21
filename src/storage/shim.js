@@ -1,5 +1,5 @@
-import EventEmitter from "../events.js";
-import {storageWithPersistence} from "./interconnect.js";
+import EventEmitter from '../events.js';
+import { storageWithPersistence } from './interconnect.js';
 
 const _global = typeof self !== 'undefined' ? self : globalThis;
 
@@ -67,9 +67,11 @@ export class InMemoryStorage extends EventEmitter {
   }
 
   key(i) {
-    if (arguments.length === 0) {
+    if (i === undefined) {
       // this is a TypeError implemented on Chrome, Firefox throws Not enough arguments to Storage.key.
-      throw new TypeError("Failed to execute 'key' on 'Storage': 1 argument required, but only 0 present.");
+      throw new TypeError(
+        "Failed to execute 'key' on 'Storage': 1 argument required, but only 0 present.",
+      );
     }
     const keys = Array.from(this._store.keys());
     return keys[i];
@@ -103,23 +105,23 @@ export default async function init(persistence) {
     stores[globalName] = store;
 
     _global[globalName] = new Proxy(store, {
-      set(obj, prop, value) {
-        if (InMemoryStorage.prototype.hasOwnProperty(prop)) {
-          store[prop] = value
+      set(_obj, prop, value) {
+        if (Object.hasOwn(InMemoryStorage.prototype, prop)) {
+          store[prop] = value;
         } else {
-          store.setItem(prop, value)
+          store.setItem(prop, value);
         }
-        return true
+        return true;
       },
-      get(target, name) {
-        if (InMemoryStorage.prototype.hasOwnProperty(name)) {
-          return store[name]
+      get(_target, name) {
+        if (Object.hasOwn(InMemoryStorage.prototype, name)) {
+          return store[name];
         }
         if (store._store.has(name)) {
-          return store.getItem(name)
+          return store.getItem(name);
         }
-      }
-    })
+      },
+    });
   }
 
   // Allow adding listeners to Storage events via `onstorage`
@@ -129,7 +131,7 @@ export default async function init(persistence) {
     },
     set(handler) {
       stores.localStorage.on('change', handler);
-    }
+    },
   });
 
   return stores;

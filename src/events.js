@@ -1,4 +1,4 @@
-import BaseEventEmitter from "events";
+import BaseEventEmitter from 'events';
 
 export default class EventEmitter extends BaseEventEmitter {
   constructor() {

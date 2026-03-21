@@ -1,12 +1,13 @@
 import { expect } from 'chai';
-import JSONResponseFactory from '../../src/response/json.js';
-import { PostStrategyHandler as AuthPostHandler, GetStrategyHandler as AuthGetHandler } from '../../src/strategy/handler/auth.js';
-import RequestContext from '../../src/request/index.js';
 import { signOut } from 'firebase/auth';
+import RequestContext from '../../src/request/index.js';
+import JSONResponseFactory from '../../src/response/json.js';
+import {
+  GetStrategyHandler as AuthGetHandler,
+  PostStrategyHandler as AuthPostHandler,
+} from '../../src/strategy/handler/auth.js';
+import { createAdminUser, createDisabledUser, createUser, teardown } from '../fixtures/auth.js';
 import { getIntegrationRuntime, hasEmulatorEnv } from './runtime.js';
-
-import {createUser, createAdminUser, createDisabledUser, teardown} from "../fixtures/auth.js";
-
 
 class MockBroadcastChannel {
   static instances = [];
@@ -33,7 +34,7 @@ function makeHandler(runtime, HandlerClass, request, requireClaims = null) {
   const strategy = {
     plugins: [],
     responseFactory: new JSONResponseFactory(),
-    options: { apiPath: '/api/auth' }
+    options: { apiPath: '/api/auth' },
   };
   const event = { waitUntil: () => {} };
   return new HandlerClass(runtime, strategy, { event, request, params: undefined });
@@ -60,15 +61,13 @@ describe('Auth handler (emulator)', () => {
   beforeEach(() => runtime.ready());
 
   afterEach(async () => {
-    if (runtime?.firebase?.auth?.currentUser) {
-      await signOut(runtime.firebase.auth);
-    }
-  });
-
-  afterEach(() => {
     if (originalBroadcastChannel) {
       globalThis.BroadcastChannel = originalBroadcastChannel;
       originalBroadcastChannel = null;
+    }
+
+    if (runtime?.firebase?.auth?.currentUser) {
+      await signOut(runtime.firebase.auth);
     }
   });
 
@@ -80,14 +79,11 @@ describe('Auth handler (emulator)', () => {
 
     await createAdminUser({ email, password });
 
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -123,14 +119,11 @@ describe('Auth handler (emulator)', () => {
     MockBroadcastChannel.instances = [];
     globalThis.BroadcastChannel = MockBroadcastChannel;
 
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -150,14 +143,11 @@ describe('Auth handler (emulator)', () => {
 
     await createUser({ email, password });
 
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -177,14 +167,11 @@ describe('Auth handler (emulator)', () => {
     const password = 'password123!';
     await createUser({ email, password });
 
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, null);
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -199,14 +186,11 @@ describe('Auth handler (emulator)', () => {
     const password = 'password123!';
     await createAdminUser({ email, password });
 
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: 'not-the-password' })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: 'not-the-password' }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -214,14 +198,14 @@ describe('Auth handler (emulator)', () => {
   });
 
   it('rejects unknown user', async () => {
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: `missing-${Date.now()}@example.com`, password: 'password123!' })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: `missing-${Date.now()}@example.com`,
+        password: 'password123!',
+      }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -229,14 +213,11 @@ describe('Auth handler (emulator)', () => {
   });
 
   it('rejects invalid email', async () => {
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'not-an-email', password: 'password123!' })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'not-an-email', password: 'password123!' }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);
@@ -248,14 +229,11 @@ describe('Auth handler (emulator)', () => {
     const password = 'password123!';
     await createDisabledUser({ email, password });
 
-    const signInRequest = makeRequest(
-      'http://localhost/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      }
-    );
+    const signInRequest = makeRequest('http://localhost/api/auth/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
     const signInHandler = makeHandler(runtime, AuthPostHandler, signInRequest, { admin: true });
     const signInResponse = await signInHandler._runFetch(signInRequest);

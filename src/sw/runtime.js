@@ -4,9 +4,9 @@ import { initializeFirebase } from '../firebase/bootstrap.js';
 import ResponseFactory from '../response/index.js';
 import JSONResponseFactory from '../response/json.js';
 import StrategyHandlerFactory from '../strategy/handler/factory.js';
-import {TimingWorkboxPlugin} from '../strategy/plugins/core.js';
+import { TimingWorkboxPlugin } from '../strategy/plugins/core.js';
 import FirebaseWorkboxPlugin from '../strategy/plugins/firebase.js';
-import {getChannel} from './broadcast.js';
+import { getChannel } from './broadcast.js';
 
 const DEFAULT_API_PREFIX = '/api';
 
@@ -67,7 +67,7 @@ export default class WorkerRuntime {
       emulatorHost: this.config.emulatorHost,
       authPort: this.config.authPort,
       firestorePort: this.config.firestorePort,
-      storagePort: this.config.storagePort
+      storagePort: this.config.storagePort,
     });
     await this.firebase.ready;
   }
@@ -100,14 +100,10 @@ export default class WorkerRuntime {
       new StrategyClass({
         ...this.getHandlerOptions(HandlerClass),
         apiPath: this.getApiPath(apiPath),
-        plugins: [
-          new FirebaseWorkboxPlugin(this),
-          ...plugins,
-          new TimingWorkboxPlugin(this),
-        ],
+        plugins: [new FirebaseWorkboxPlugin(this), ...plugins, new TimingWorkboxPlugin(this)],
         ...strategyOptions,
       }),
-      method
+      method,
     );
   }
 

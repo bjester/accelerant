@@ -1,4 +1,4 @@
-import { getApps, deleteApp } from 'firebase/app';
+import { deleteApp, getApps } from 'firebase/app';
 import { terminate } from 'firebase/firestore';
 
 let runtimeInstance = null;
@@ -22,7 +22,7 @@ async function createRuntime() {
       projectId: process.env.FIREBASE_PROJECT_ID || 'demo-accelerant',
       apiKey: 'demo',
       appId: 'demo',
-      storageBucket: `${process.env.FIREBASE_PROJECT_ID || 'demo-accelerant'}.appspot.com`
+      storageBucket: `${process.env.FIREBASE_PROJECT_ID || 'demo-accelerant'}.appspot.com`,
     },
     useEmulators: true,
     emulatorHost,
