@@ -1,0 +1,26 @@
+# Keeps dependencies up to date
+
+version: 2
+updates:
+  # Maintain dependencies for JS
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "friday"
+      time: "00:00"
+    groups:
+      workbox:
+        patterns:
+          - "workbox-*"
+  # Maintain dependencies for Github Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "friday"
+      time: "00:00"
+    groups:
+      github:
+        patterns:
+          - "actions/*"
