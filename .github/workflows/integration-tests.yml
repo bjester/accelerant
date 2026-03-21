@@ -1,9 +1,6 @@
 name: Integration Tests
 
-on:
-  pull_request:
-    branches:
-      - '**'
+on: [push, pull_request]
 
 concurrency:
   group: integ-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

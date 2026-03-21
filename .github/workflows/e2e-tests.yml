@@ -1,9 +1,6 @@
 name: E2E Tests
 
-on:
-  pull_request:
-    branches:
-      - '**'
+on: [push, pull_request]
 
 concurrency:
   group: e2e-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

@@ -1,9 +1,6 @@
 name: Unit Tests
 
-on:
-  pull_request:
-    branches:
-      - '**'
+on: [push, pull_request]
 
 concurrency:
   group: unit-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
