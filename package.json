@@ -3,6 +3,10 @@
   "version": "0.1.1",
   "description": "A service worker for simplifying your frontend integration with Firebase",
   "homepage": "https://github.com/bjester/accelerant",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bjester/accelerant.git"
+  },
   "bugs": {
     "url": "https://github.com/bjester/accelerant/issues"
   },
