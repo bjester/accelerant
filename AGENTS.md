@@ -1,17 +1,18 @@
 # AGENTS.md
 
 ## Environment bootstrap
-- Before running any `pnpm` command, always run:
+- If there exists a `.venv/` directory, then before running any `pnpm` command, always run:
   - `source .venv/bin/activate`
 - Run all project commands from the project directory where `package.json` exists
 
 ## Common commands
+Before running any of these, be sure to follow 'Environment bootstrap' instructions.
 - Unit tests:
-  - `source .venv/bin/activate && pnpm test:unit`
+  - `pnpm test:unit`
 - Integration tests (Firebase emulators):
-  - `source .venv/bin/activate && pnpm test:integ`
+  - `pnpm test:integ`
 - Full test suite:
-  - `source .venv/bin/activate && pnpm test`
+  - `pnpm test`
 
 ## Practical repo notes
 - This is an ESM package (`"type": "module"`).

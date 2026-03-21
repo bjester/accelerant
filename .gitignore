@@ -21,6 +21,7 @@ node_modules
 .junie/
 .vibe/
 .claude/
+CLAUDE.md
 
 # Tools
 .gh/
