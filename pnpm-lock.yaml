@@ -14,9 +14,6 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
-      workbox-broadcast-update:
-        specifier: ^7.4.0
-        version: 7.4.0
       workbox-expiration:
         specifier: ^7.4.0
         version: 7.4.0
@@ -60,6 +57,43 @@ importers:
       vite:
         specifier: ^8.0.1
         version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.3)(yaml@2.8.3)
+
+  dist:
+    dependencies:
+      events:
+        specifier: ^3.3.0
+        version: 3.3.0
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
+      workbox-expiration:
+        specifier: ^7.4.0
+        version: 7.4.0
+      workbox-routing:
+        specifier: ^7.4.0
+        version: 7.4.0
+      workbox-strategies:
+        specifier: ^7.4.0
+        version: 7.4.0
+    devDependencies:
+      chai:
+        specifier: ^6.2.2
+        version: 6.2.2
+      fast-glob:
+        specifier: ^3.3.3
+        version: 3.3.3
+      firebase:
+        specifier: ^12.9.0
+        version: 12.9.0
+      mocha:
+        specifier: ^11.7.5
+        version: 11.7.5
+      rollup:
+        specifier: ^4.59.0
+        version: 4.59.1
+      rollup-plugin-copy:
+        specifier: ^3.5.0
+        version: 3.5.0
 
 packages:
 
@@ -3763,9 +3797,6 @@ packages:
   winston@3.19.0:
     resolution: {integrity: sha512-LZNJgPzfKR+/J3cHkxcpHKpKKvGfDZVPS4hfJCc4cCG0CgYzvlD6yE/S3CIL/Yt91ak327YCpiF/0MyeZHEHKA==}
     engines: {node: '>= 12.0.0'}
-
-  workbox-broadcast-update@7.4.0:
-    resolution: {integrity: sha512-+eZQwoktlvo62cI0b+QBr40v5XjighxPq3Fzo9AWMiAosmpG5gxRHgTbGGhaJv/q/MFVxwFNGh/UwHZ/8K88lA==}
 
   workbox-core@7.4.0:
     resolution: {integrity: sha512-6BMfd8tYEnN4baG4emG9U0hdXM4gGuDU3ectXuVHnj71vwxTFI7WOpQJC4siTOlVtGqCUtj0ZQNsrvi6kZZTAQ==}
@@ -8002,10 +8033,6 @@ snapshots:
       stack-trace: 0.0.10
       triple-beam: 1.4.1
       winston-transport: 4.9.0
-
-  workbox-broadcast-update@7.4.0:
-    dependencies:
-      workbox-core: 7.4.0
 
   workbox-core@7.4.0: {}
 

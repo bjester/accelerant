@@ -5,8 +5,8 @@ import {
   NetworkOnly as BaseNetworkOnly,
   StaleWhileRevalidate as BaseStaleWhileRevalidate,
   Strategy as BaseStrategy,
+  StrategyHandler,
 } from 'workbox-strategies';
-import { StrategyHandler } from 'workbox-strategies/src/StrategyHandler.ts';
 import { WorkboxError } from '../errors.js';
 import StrategyHandlerFactory from './handler/factory.js';
 import { CacheInvalidateWorkboxPlugin } from './plugins/core.js';

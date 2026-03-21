@@ -2,8 +2,16 @@
   "name": "accelerant",
   "version": "0.1.0",
   "description": "A service worker for simplifying your frontend integration with Firebase",
+  "homepage": "https://github.com/bjester/accelerant",
+  "bugs": {
+    "url": "https://github.com/bjester/accelerant/issues"
+  },
   "main": "src/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "rollup -c",
     "lint": "biome check src/ test/",
     "lint:fix": "biome check --write src/ test/",
     "format": "biome format --write src/ test/",
@@ -23,13 +31,16 @@
     "cache"
   ],
   "author": "Blaine Jester",
+  "funding": {
+    "type": "patreon",
+    "url": "https://patreon.com/BlaineJester"
+  },
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.0.0-dev.1005+sha512.91f84a392eea348ea4852a182912d2520273a4336f933b78cc44bc931eb999923c097e9433a9b355adc1f725725ea99082fc9f032a559df832632e764c92c798",
   "dependencies": {
     "events": "^3.3.0",
     "uuid": "^13.0.0",
-    "workbox-broadcast-update": "^7.4.0",
     "workbox-expiration": "^7.4.0",
     "workbox-routing": "^7.4.0",
     "workbox-strategies": "^7.4.0"
