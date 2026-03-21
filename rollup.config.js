@@ -26,19 +26,37 @@ export default {
     sourcemap: true,
   },
   external: [
+    'events',
+    'uuid',
     'workbox-routing',
     'workbox-expiration',
     'workbox-strategies',
     'firebase/app',
     'firebase/auth',
     'firebase/firestore',
+    'firebase/functions',
     'firebase/storage',
-    'uuid',
   ],
   plugins: [
     copy({
       targets: [
-        { src: 'package.json', dest: 'dist' },
+        {
+          src: 'package.json',
+          dest: 'dist',
+          transform(contents) {
+            const pkg = JSON.parse(contents.toString());
+            delete pkg.devDependencies;
+            delete pkg.scripts;
+            delete pkg.packageManager;
+            delete pkg.files;
+            pkg.main = 'index.js';
+            pkg.exports = {
+              '.': './index.js',
+              './sw': './sw/worker.js',
+            };
+            return JSON.stringify(pkg, null, 2);
+          },
+        },
         { src: 'README.md', dest: 'dist' },
       ],
     }),
