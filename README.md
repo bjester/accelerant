@@ -1,4 +1,9 @@
 # Accelerant
+[![Unit tests](https://github.com/bjester/accelerant/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/bjester/accelerant/actions/workflows/unit-tests.yml)
+[![Integration](https://github.com/bjester/accelerant/actions/workflows/integration-tests.yml/badge.svg?branch=main)](https://github.com/bjester/accelerant/actions/workflows/integration-tests.yml)
+[![E2E](https://github.com/bjester/accelerant/actions/workflows/e2e-tests.yml/badge.svg?branch=main)](https://github.com/bjester/accelerant/actions/workflows/e2e-tests.yml)
+[![Lint](https://github.com/bjester/accelerant/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/bjester/accelerant/actions/workflows/lint.yml)
+![NPM Version](https://img.shields.io/npm/v/accelerant)
 
 Accelerant exposes Firebase Auth, Firestore, and Storage through a service worker API so your frontend can use `fetch` without importing the Firebase SDK.
 
