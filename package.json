@@ -40,7 +40,7 @@
     "chai": "^6.2.2",
     "fast-glob": "^3.3.3",
     "firebase": "^12.9.0",
-    "firebase-admin": "^13.6.1",
+    "firebase-admin": "^13.7.0",
     "firebase-tools": "^15.7.0",
     "mocha": "^11.7.5",
     "rollup": "^4.59.0",
