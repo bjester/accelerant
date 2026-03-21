@@ -1,5 +1,3 @@
-import WorkboxPlugin from "./index.js";
-import PrefixIndex from "../../storage/lookup.js";
 import {
   collection,
   collectionGroup,
@@ -15,6 +13,8 @@ import FirestoreRequestDescriptor, {
   KIND_DOCUMENT,
 } from '../../request/firestore.js';
 import RequestContext from '../../request/index.js';
+import PrefixIndex from '../../storage/lookup.js';
+import WorkboxPlugin from './index.js';
 
 const DEFAULT_MAX_LISTENERS = 25;
 const DEFAULT_MAX_EVENTS_PER_MESSAGE = 20;
@@ -265,14 +265,16 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
    * @private
    */
   _descriptorFilters(descriptor) {
-    return [...(descriptor?.filters || [])].map((filter) => {
-      const value = Array.isArray(filter.value) ? [...filter.value].sort() : filter.value;
-      return JSON.stringify({
-        field: filter.field,
-        operator: filter.operator,
-        value,
-      });
-    }).sort();
+    return [...(descriptor?.filters || [])]
+      .map((filter) => {
+        const value = Array.isArray(filter.value) ? [...filter.value].sort() : filter.value;
+        return JSON.stringify({
+          field: filter.field,
+          operator: filter.operator,
+          value,
+        });
+      })
+      .sort();
   }
 
   /**
@@ -330,7 +332,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
     if (!metadata?.broadQueryCheckedAt) {
       return false;
     }
-    return (Date.now() - metadata.broadQueryCheckedAt) <= this.broadQueryMemoryMs;
+    return Date.now() - metadata.broadQueryCheckedAt <= this.broadQueryMemoryMs;
   }
 
   /**
@@ -346,14 +348,17 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
     }
 
     const existing = metadata || (await this._getMetadata(key)) || {};
-    if (this._isBroadAssessmentFresh(existing) && typeof existing.broadQueryTooBroad === 'boolean') {
+    if (
+      this._isBroadAssessmentFresh(existing) &&
+      typeof existing.broadQueryTooBroad === 'boolean'
+    ) {
       return existing.broadQueryTooBroad;
     }
 
     let count = 0;
     try {
       count = await this._countQueryResults(ref);
-    } catch (e) {
+    } catch (_e) {
       // Fail safe: if count cannot be determined, treat candidate as too broad so we avoid
       // accidentally relying on an unbounded listener for dedupe.
       count = this.broadQueryMaxDocs + 1;
@@ -441,7 +446,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
 
     if (target.kind === KIND_DOCUMENT) {
       events.push({
-        type: `${this.eventNamespace}:` + (snapshot.exists() ? 'patch' : 'delete'),
+        type: `${this.eventNamespace}:${snapshot.exists() ? 'patch' : 'delete'}`,
         url: target.path,
         data: snapshot.exists() ? snapshot.data() : null,
       });
@@ -466,7 +471,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
           type: `${this.eventNamespace}:${type}`,
           url: target.path,
           data: change.doc.data(),
-        })
+        });
       });
     }
 
@@ -498,7 +503,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
     this._queue = this._queue.slice(this.maxEventsPerMessage);
     this._broadcast({
       type: `${this.eventNamespace}:change`,
-      events
+      events,
     });
   }
 
@@ -516,7 +521,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
 
     try {
       listener.unsubscribe();
-    } catch (e) {
+    } catch (_e) {
       // no-op
     }
 
@@ -627,7 +632,7 @@ export class FirestoreListenerWorkboxPlugin extends WorkboxPlugin {
   async _recordRequest(target) {
     const now = Date.now();
     const existing = (await this._getMetadata(target.listenKey)) || {};
-    const withinWindow = existing.lastSeenAt && (now - existing.lastSeenAt <= this.hitWindowMs);
+    const withinWindow = existing.lastSeenAt && now - existing.lastSeenAt <= this.hitWindowMs;
     const hits = withinWindow ? (existing.hits || 0) + 1 : 1;
 
     const metadata = {

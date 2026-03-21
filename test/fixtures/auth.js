@@ -1,12 +1,12 @@
-import { initializeApp as initAdminApp, deleteApp as deleteAdminApp } from 'firebase-admin/app';
-import {getAuth as getAdminAuth} from "firebase-admin/auth";
+import { deleteApp as deleteAdminApp, initializeApp as initAdminApp } from 'firebase-admin/app';
+import { getAuth as getAdminAuth } from 'firebase-admin/auth';
 
 let app = null;
 
 function _getAdminAuth() {
   if (!app) {
     const projectId = process.env.FIREBASE_PROJECT_ID || 'demo-accelerant';
-    app = initAdminApp({projectId}, `user-${Date.now()}`);
+    app = initAdminApp({ projectId }, `user-${Date.now()}`);
   }
   return getAdminAuth(app);
 }

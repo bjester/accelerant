@@ -1,13 +1,12 @@
 import {
-  RequestError,
   BadRequestError,
-  MethodNotAllowedError,
-  ServerError,
   InvalidImplementationError,
+  MethodNotAllowedError,
   NotFoundError,
-} from "../errors.js";
-import {FirebaseErrorCodeToStatus} from "./constants.js";
-
+  RequestError,
+  ServerError,
+} from '../errors.js';
+import { FirebaseErrorCodeToStatus } from './constants.js';
 
 export default class ResponseFactory {
   constructor(options = {}) {

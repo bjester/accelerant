@@ -18,7 +18,7 @@ export default class StrategyHandlerFactory {
     if (!this.HandlerClass) {
       return initialHandler;
     }
-    const {event, url, request, params} = initialHandler;
-    return new this.HandlerClass(this.runtime, strategy, {event, url, request, params});
+    const { event, url, request, params } = initialHandler;
+    return new this.HandlerClass(this.runtime, strategy, { event, url, request, params });
   }
 }

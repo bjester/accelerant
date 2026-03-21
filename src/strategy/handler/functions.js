@@ -1,9 +1,10 @@
-import {httpsCallable} from "firebase/functions";
-import StrategyHandler from "./index.js";
-
+import { httpsCallable } from 'firebase/functions';
+import StrategyHandler from './index.js';
 
 export class FunctionsStrategyHandler extends StrategyHandler {
-  get allowedMethods() { return ['POST']; }
+  get allowedMethods() {
+    return ['POST'];
+  }
 
   get fn() {
     return httpsCallable(this.runtime.firebase.functions, this.options.name);
@@ -24,7 +25,7 @@ export class FunctionsStrategyHandler extends StrategyHandler {
       case this.options.name:
         return await this._handleRequest(context);
       default:
-        return this.runtime.response.json.notFound('not-found: ' + context.path);
+        return this.runtime.response.json.notFound(`not-found: ${context.path}`);
     }
   }
 

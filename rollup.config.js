@@ -7,17 +7,14 @@ export default {
   input: {
     index: './index.js',
     ...Object.fromEntries(
-      glob.sync('src/**/*.js').map(file => [
+      glob.sync('src/**/*.js').map((file) => [
         // This remove `src/` as well as the file extension from each
         // file, so e.g. src/nested/foo.js becomes nested/foo
-        path.relative(
-          'src',
-          file.slice(0, file.length - path.extname(file).length)
-        ),
+        path.relative('src', file.slice(0, file.length - path.extname(file).length)),
         // This expands the relative paths to absolute paths, so e.g.
         // src/nested/foo becomes /project/src/nested/foo.js
-        fileURLToPath(new URL(file, import.meta.url))
-      ])
+        fileURLToPath(new URL(file, import.meta.url)),
+      ]),
     ),
   },
   output: {
@@ -29,21 +26,21 @@ export default {
     sourcemap: true,
   },
   external: [
-    'workbox-routing', 
-    'workbox-expiration', 
+    'workbox-routing',
+    'workbox-expiration',
     'workbox-strategies',
     'firebase/app',
     'firebase/auth',
     'firebase/firestore',
     'firebase/storage',
-    'uuid'
+    'uuid',
   ],
   plugins: [
     copy({
       targets: [
-        {src: 'package.json', dest: 'dist'},
-        {src: 'README.md', dest: 'dist'},
-      ]
-    })
-  ]
-}
+        { src: 'package.json', dest: 'dist' },
+        { src: 'README.md', dest: 'dist' },
+      ],
+    }),
+  ],
+};

@@ -45,10 +45,10 @@ export default class RequestContext extends Request {
   }
 
   /**
-  * @param {function(string):boolean} keyFilter
-  * @return {Generator<[string, string[]]>}
-  */
-  * paramEntries(keyFilter = (key) => true) {
+   * @param {function(string):boolean} keyFilter
+   * @return {Generator<[string, string[]]>}
+   */
+  *paramEntries(keyFilter = (_key) => true) {
     const seen = new Set();
     for (const rawKey of this.params.keys()) {
       if (seen.has(rawKey)) {
@@ -69,11 +69,11 @@ export default class RequestContext extends Request {
    * @return {mixed<T>}
    */
   reduceParams(
-    reducer = (accumulator, currentValue, key) => currentValue,
+    reducer = (_accumulator, currentValue, _key) => currentValue,
     initialValue = undefined,
-    keyFilter = undefined
+    keyFilter = undefined,
   ) {
-    for (let [key, value] of this.paramEntries(keyFilter)) {
+    for (const [key, value] of this.paramEntries(keyFilter)) {
       initialValue = reducer(initialValue, value, key);
     }
     return initialValue;

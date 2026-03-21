@@ -1,12 +1,4 @@
-import {
-  doc,
-  getDoc,
-  limit,
-  orderBy,
-  startAfter,
-  startAt,
-  where
-} from 'firebase/firestore';
+import { doc, getDoc, limit, orderBy, startAfter, startAt, where } from 'firebase/firestore';
 import { BadRequestError } from '../errors.js';
 import RequestContext from './index.js';
 
@@ -41,7 +33,7 @@ const FILTER_SUFFIX_OPERATOR_PAIRS = [
 
 const SuffixToOperator = Object.fromEntries(FILTER_SUFFIX_OPERATOR_PAIRS);
 const OperatorToSuffix = Object.fromEntries(
-  FILTER_SUFFIX_OPERATOR_PAIRS.map(([suffix, operator]) => [operator, suffix])
+  FILTER_SUFFIX_OPERATOR_PAIRS.map(([suffix, operator]) => [operator, suffix]),
 );
 
 /**
@@ -125,7 +117,7 @@ export default class FirestoreRequestDescriptor {
     const cursors = [];
     let _limit = null;
 
-    for (let [key, values] of context.paramEntries()) {
+    for (const [key, values] of context.paramEntries()) {
       if (!RESERVED_KEYS.includes(key)) {
         const parts = key.split('__');
         if (parts.length > 2) {
@@ -158,13 +150,15 @@ export default class FirestoreRequestDescriptor {
 
       switch (key) {
         case ORDER_BY:
-          orderByFields.push(...values.map((entry) => {
-            const [field, direction = 'asc'] = entry.split(':').reverse();
-            return {
-              field,
-              direction: /** @type {Firestore.OrderByDirection} */ (direction || 'asc'),
-            };
-          }));
+          orderByFields.push(
+            ...values.map((entry) => {
+              const [field, direction = 'asc'] = entry.split(':').reverse();
+              return {
+                field,
+                direction: /** @type {Firestore.OrderByDirection} */ (direction || 'asc'),
+              };
+            }),
+          );
           break;
         case LIMIT: {
           const parsedLimit = parseInt(values[0], 10);
@@ -254,10 +248,10 @@ export default class FirestoreRequestDescriptor {
       filters: [...this.filters]
         .sort((a, b) => `${a.field}:${a.operator}`.localeCompare(`${b.field}:${b.operator}`))
         .map((item) => ({ field: item.field, operator: item.operator, value: item.value })),
-      orderBy: [...this.orderBy]
-        .sort((a, b) => `${a.field}:${a.direction}`.localeCompare(`${b.field}:${b.direction}`)),
-      cursors: [...this.cursors]
-        .sort((a, b) => a.type.localeCompare(b.type)),
+      orderBy: [...this.orderBy].sort((a, b) =>
+        `${a.field}:${a.direction}`.localeCompare(`${b.field}:${b.direction}`),
+      ),
+      cursors: [...this.cursors].sort((a, b) => a.type.localeCompare(b.type)),
       limit: this.limit,
     };
 
@@ -280,14 +274,13 @@ export default class FirestoreRequestDescriptor {
     }
 
     const basePath = `/${relativePath.replace(/^\/+/, '')}`;
-    const fullPath = normalizedApiPath
-      ? `/${normalizedApiPath}${basePath}`
-      : basePath;
+    const fullPath = normalizedApiPath ? `/${normalizedApiPath}${basePath}` : basePath;
 
     const params = new URLSearchParams();
 
-    const sortedFilters = [...this.filters]
-      .sort((a, b) => `${a.field}:${a.operator}`.localeCompare(`${b.field}:${b.operator}`));
+    const sortedFilters = [...this.filters].sort((a, b) =>
+      `${a.field}:${a.operator}`.localeCompare(`${b.field}:${b.operator}`),
+    );
     for (const filter of sortedFilters) {
       const suffix = OperatorToSuffix[filter.operator];
       const key = suffix ? `${filter.field}__${suffix}` : filter.field;
@@ -304,8 +297,9 @@ export default class FirestoreRequestDescriptor {
       }
     }
 
-    const sortedOrderBy = [...this.orderBy]
-      .sort((a, b) => `${a.field}:${a.direction}`.localeCompare(`${b.field}:${b.direction}`));
+    const sortedOrderBy = [...this.orderBy].sort((a, b) =>
+      `${a.field}:${a.direction}`.localeCompare(`${b.field}:${b.direction}`),
+    );
     for (const field of sortedOrderBy) {
       params.append(ORDER_BY, `${field.direction}:${field.field}`);
     }
@@ -314,8 +308,7 @@ export default class FirestoreRequestDescriptor {
       params.append(LIMIT, String(this.limit));
     }
 
-    const sortedCursors = [...this.cursors]
-      .sort((a, b) => a.type.localeCompare(b.type));
+    const sortedCursors = [...this.cursors].sort((a, b) => a.type.localeCompare(b.type));
     for (const cursor of sortedCursors) {
       const key = cursor.type === 'startAfter' ? AFTER : AT;
       for (const value of cursor.values) {
@@ -435,7 +428,10 @@ export class FirestorePath {
    * @return {FirestorePath}
    */
   getFirestoreCollectionGroupPath() {
-    const collectionName = (this.pathSplit[this.pathSplit.length - 1] || '').replace(/\.group$/, '');
+    const collectionName = (this.pathSplit[this.pathSplit.length - 1] || '').replace(
+      /\.group$/,
+      '',
+    );
     const apiPath = this._apiPath.replace(/^\/+/, '');
     const request = new Request(`${this.url.origin}/${apiPath}/${collectionName}.group`);
     return new FirestorePath(request, this._apiPath);

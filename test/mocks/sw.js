@@ -30,11 +30,11 @@ export function patchCaches() {
           async delete(request) {
             const key = request.url || String(request);
             return map.delete(key);
-          }
+          },
         });
       }
       return stores.get(name);
-    }
+    },
   };
 }
 

@@ -1,8 +1,13 @@
 import { expect } from 'chai';
-import JSONResponseFactory from '../../src/response/json.js';
-import { ref as storageRef, deleteObject } from 'firebase/storage';
-import { GetStrategyHandler, HeadStrategyHandler, PutStrategyHandler, DeleteStrategyHandler } from '../../src/strategy/handler/storage.js';
+import { deleteObject, ref as storageRef } from 'firebase/storage';
 import RequestContext from '../../src/request/index.js';
+import JSONResponseFactory from '../../src/response/json.js';
+import {
+  DeleteStrategyHandler,
+  GetStrategyHandler,
+  HeadStrategyHandler,
+  PutStrategyHandler,
+} from '../../src/strategy/handler/storage.js';
 import { getIntegrationRuntime, hasEmulatorEnv } from './runtime.js';
 
 function makeHandler(runtime, HandlerClass, request) {
@@ -39,14 +44,11 @@ describe('Storage handler (emulator)', () => {
     const path = 'fixtures/hello.txt';
     const content = 'hello storage';
 
-    const putRequest = makeRequest(
-      `http://localhost/api/fs/${path}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'text/plain' },
-        body: new TextEncoder().encode(content)
-      }
-    );
+    const putRequest = makeRequest(`http://localhost/api/fs/${path}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'text/plain' },
+      body: new TextEncoder().encode(content),
+    });
 
     const putHandler = makeHandler(runtime, PutStrategyHandler, putRequest);
     const putResponse = await putHandler._runFetch(putRequest);
@@ -97,13 +99,10 @@ describe('Storage handler (emulator)', () => {
     const path = 'fixtures/no-content-type.txt';
     const content = 'no content type';
 
-    const putRequest = makeRequest(
-      `http://localhost/api/fs/${path}`,
-      {
-        method: 'PUT',
-        body: new TextEncoder().encode(content)
-      }
-    );
+    const putRequest = makeRequest(`http://localhost/api/fs/${path}`, {
+      method: 'PUT',
+      body: new TextEncoder().encode(content),
+    });
     const putHandler = makeHandler(runtime, PutStrategyHandler, putRequest);
     const putResponse = await putHandler._runFetch(putRequest);
     expect(putResponse.status).to.equal(201);

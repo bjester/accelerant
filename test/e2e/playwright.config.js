@@ -9,11 +9,11 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     headless: true,
-    serviceWorkers: 'allow'
+    serviceWorkers: 'allow',
   },
   webServer: {
     command: 'pnpm exec vite --config test/e2e/vite.config.js',
     url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI
-  }
+    reuseExistingServer: !process.env.CI,
+  },
 });

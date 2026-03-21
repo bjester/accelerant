@@ -1,18 +1,15 @@
 import {
-  ref as storageRef,
-  uploadBytes,
+  deleteObject,
   getBytes,
   getDownloadURL,
-  deleteObject,
   getMetadata,
-  uploadBytesResumable
-} from "firebase/storage";
-import StrategyHandler from "./index.js";
-import {
-  BadRequestError,
-  NotFoundError
-} from '../../errors.js';
-import {shouldStreamUpload} from "../../util.js";
+  ref as storageRef,
+  uploadBytes,
+  uploadBytesResumable,
+} from 'firebase/storage';
+import { BadRequestError, NotFoundError } from '../../errors.js';
+import { shouldStreamUpload } from '../../util.js';
+import StrategyHandler from './index.js';
 
 const DL_STREAM_THRESHOLD = 15 * 1024 * 1024; // 15 MB
 
@@ -85,7 +82,7 @@ export class GetStrategyHandler extends StorageStrategyHandler {
       }
     }
 
-    return this.runtime.response.plain.ok(body, { status: 200, headers })
+    return this.runtime.response.plain.ok(body, { status: 200, headers });
   }
 }
 
@@ -160,7 +157,7 @@ export class PutStrategyHandler extends StorageStrategyHandler {
     // Upload the file
     const shouldStream = shouldStreamUpload(
       this.runtime.config.useEmulators ? 'http' : self.location.origin,
-      fileData
+      fileData,
     );
 
     let uploadResult;
@@ -169,24 +166,29 @@ export class PutStrategyHandler extends StorageStrategyHandler {
       uploadResult = await new Promise((resolve, reject) => {
         const uploadTask = uploadBytesResumable(fileRef, fileData, { contentType });
 
-        uploadTask.on('state_changed', (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
-          }
-        }, (err) => {
-          console.error(err);
-          console.log({...err})
-          reject(err);
-        }, () => {
-          resolve(uploadTask.snapshot);
-        })
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+            }
+          },
+          (err) => {
+            console.error(err);
+            console.log({ ...err });
+            reject(err);
+          },
+          () => {
+            resolve(uploadTask.snapshot);
+          },
+        );
       });
     } else {
       uploadResult = await uploadBytes(fileRef, fileData, { contentType });
@@ -202,8 +204,8 @@ export class PutStrategyHandler extends StorageStrategyHandler {
         size: uploadResult.metadata.size,
         contentType: uploadResult.metadata.contentType,
         timeCreated: uploadResult.metadata.timeCreated,
-        updated: uploadResult.metadata.updated
-      }
+        updated: uploadResult.metadata.updated,
+      },
     });
   }
 }

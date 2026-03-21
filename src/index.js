@@ -2,7 +2,6 @@
 // Provides service worker registration and core functionality
 
 import { initializeFirebase } from './firebase/bootstrap.js';
-import { registerRoutes } from './sw/worker.js';
 
 /**
  * Configuration options for Accelerant
@@ -44,13 +43,13 @@ class Accelerant {
       requireClaims: null,
       broadcastChannelName: 'accelerant-events',
       firestoreCache: undefined,
-      ...config
+      ...config,
     };
-    
+
     // Initialize Firebase
     this.firebase = initializeFirebase(this.config);
   }
-  
+
   /**
    * Register the service worker with Accelerant routes
    * @param {string} [scriptUrl='/sw.js'] - URL to the service worker script
@@ -63,9 +62,9 @@ class Accelerant {
         const registration = await navigator.serviceWorker.register(scriptUrl, {
           scope: '/',
           type: 'module',
-          ...options
+          ...options,
         });
-        
+
         // Wait for the service worker to become active
         const installing = registration.installing;
         if (installing) {
@@ -79,10 +78,12 @@ class Accelerant {
             maybeResolve();
           });
         }
-        
+
         if (!navigator.serviceWorker.controller) {
           await new Promise((resolve) => {
-            navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true });
+            navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), {
+              once: true,
+            });
           });
         }
 
@@ -95,7 +96,7 @@ class Accelerant {
       throw new Error('Service workers are not supported in this browser');
     }
   }
-  
+
   /**
    * Get the Firebase app instance
    * @returns {import("firebase/app").FirebaseApp}
@@ -103,7 +104,7 @@ class Accelerant {
   get app() {
     return this.firebase.app;
   }
-  
+
   /**
    * Get the Firebase Auth instance
    * @returns {import("firebase/auth").Auth}
@@ -111,7 +112,7 @@ class Accelerant {
   get auth() {
     return this.firebase.auth;
   }
-  
+
   /**
    * Get the Firebase Firestore instance
    * @returns {import("firebase/firestore").Firestore}
@@ -119,7 +120,7 @@ class Accelerant {
   get firestore() {
     return this.firebase.firestore;
   }
-  
+
   /**
    * Get the Firebase Storage instance
    * @returns {import("firebase/storage").FirebaseStorage}
@@ -127,7 +128,7 @@ class Accelerant {
   get storage() {
     return this.firebase.storage;
   }
-  
+
   /**
    * Wait for Firebase to be ready
    * @returns {Promise<void>}
@@ -153,6 +154,6 @@ export async function registerServiceWorker(config, scriptUrl = '/sw.js', option
 // Export the main class
 export default Accelerant;
 
+export { registerRoutes } from './sw/worker.js';
 // Export individual components for advanced usage
 export { Accelerant };
-export { registerRoutes } from './sw/worker.js';

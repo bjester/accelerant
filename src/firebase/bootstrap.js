@@ -2,10 +2,10 @@
 // Handles app setup, emulator configuration, and resource provisioning
 
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
-import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
+import { connectFunctionsEmulator, getFunctions } from 'firebase/functions';
+import { connectStorageEmulator, getStorage } from 'firebase/storage';
 
 /**
  * Firebase initialization result
@@ -39,7 +39,7 @@ export function initializeFirebase(config = {}) {
   if (firebaseInstance) {
     return firebaseInstance;
   }
-  
+
   const {
     firebaseConfig,
     useEmulators = false,
@@ -47,16 +47,16 @@ export function initializeFirebase(config = {}) {
     authPort = 9099,
     firestorePort = 8080,
     functionsPort = 8080,
-    storagePort = 9199
+    storagePort = 9199,
   } = config;
-  
+
   if (!firebaseConfig) {
     throw new Error('Firebase configuration is required');
   }
-  
+
   // Initialize Firebase app
   const app = initializeApp(firebaseConfig);
-  
+
   // Get Firebase services
   const auth = getAuth(app);
   const firestore = getFirestore(app);
@@ -65,23 +65,23 @@ export function initializeFirebase(config = {}) {
 
   // Optional promise to override to control when Firebase is ready
   // This is an artifact of Firestore having async persistence setup, which complicated bootstrap
-  let readyPromise = Promise.resolve();
+  const readyPromise = Promise.resolve();
 
   // Configure emulators if enabled
   if (useEmulators) {
     // Connect to Auth emulator
     connectAuthEmulator(auth, `http://${emulatorHost}:${authPort}`);
-    
+
     // Connect to Firestore emulator
     connectFirestoreEmulator(firestore, emulatorHost, firestorePort);
 
     // Connect to Functions emulator
     connectFunctionsEmulator(functions, emulatorHost, functionsPort);
-    
+
     // Connect to Storage emulator
     connectStorageEmulator(storage, emulatorHost, storagePort);
   }
-  
+
   // Create the Firebase instance
   firebaseInstance = {
     app,
@@ -89,9 +89,9 @@ export function initializeFirebase(config = {}) {
     firestore,
     functions,
     storage,
-    ready: readyPromise
+    ready: readyPromise,
   };
-  
+
   return firebaseInstance;
 }
 

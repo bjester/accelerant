@@ -1,7 +1,5 @@
-import WorkboxPlugin from "./index.js";
-import LookupIndex, {AlterIndex} from "../../storage/lookup.js";
-
-
+import LookupIndex, { AlterIndex } from '../../storage/lookup.js';
+import WorkboxPlugin from './index.js';
 
 /**
  * Return a simple request, so the cache is keyed by URL
@@ -77,9 +75,12 @@ export class IndexingWorkboxPlugin extends WorkboxPlugin {
    * @return {function(Request, object, StrategyHandler): string[]}
    */
   get keysFunc() {
-    return this.options?.keysFunc || ((request, responseData) => {
-      return [responseData[this.fieldName]];
-    });
+    return (
+      this.options?.keysFunc ||
+      ((_request, responseData) => {
+        return [responseData[this.fieldName]];
+      })
+    );
   }
 
   async getIndex(handler) {
@@ -88,7 +89,7 @@ export class IndexingWorkboxPlugin extends WorkboxPlugin {
     let index = handler.state.index[this.indexName];
     if (!index) {
       index = handler.state.index[this.indexName] = await LookupIndex.getInstance(
-        `${this.indexName}-${this.runtime.version}`
+        `${this.indexName}-${this.runtime.version}`,
       );
     }
     return index;
@@ -196,7 +197,7 @@ export class CacheWorkboxPlugin extends WorkboxPlugin {
     this.events.emit('create', request.url);
     return this._addHeaders(response, {
       'X-Worker-Cache-Status': 'MISS',
-      'X-Worker-Cache-Time': (new Date()).toISOString(),
+      'X-Worker-Cache-Time': new Date().toISOString(),
       'X-Worker-Cache-Zone': handler.cacheName,
     });
   }
@@ -206,19 +207,23 @@ export class CacheWorkboxPlugin extends WorkboxPlugin {
       return cachedResponse;
     }
     state.cachedResponseWillBeUsed = true;
-    return this._newResponse(cachedResponse, {
-      status: 200,
-      statusText: 'OK',
-    }, {
-      'X-Worker-Cache-Status': 'HIT',
-    });
+    return this._newResponse(
+      cachedResponse,
+      {
+        status: 200,
+        statusText: 'OK',
+      },
+      {
+        'X-Worker-Cache-Status': 'HIT',
+      },
+    );
   }
 
-  async cacheKeyWillBeUsed({request}) {
+  async cacheKeyWillBeUsed({ request }) {
     return getCacheKey({ request: request.clone() });
   }
 
-  async cacheWillUpdate({request, response, handler}) {
+  async cacheWillUpdate({ request, response, handler }) {
     if (!response || !response.ok || response.status === 204) {
       return null;
     }
@@ -228,7 +233,7 @@ export class CacheWorkboxPlugin extends WorkboxPlugin {
     return this._addHeaders(response, {
       'X-Worker-Cache-Status': 'UPDATING',
       'X-Worker-Cache-Zone': handler.cacheName,
-      'X-Worker-Cache-Time': (new Date()).toISOString(),
+      'X-Worker-Cache-Time': new Date().toISOString(),
     });
   }
 }
@@ -238,7 +243,7 @@ export class CacheInvalidateWorkboxPlugin extends WorkboxPlugin {
    * @return {function(Request, StrategyHandler): Promise<Array<Request>>}
    */
   get cacheKeyFunc() {
-    return this.options?.cacheKeyFunc || (async request => [request]);
+    return this.options?.cacheKeyFunc || (async (request) => [request]);
   }
 
   /**
@@ -262,7 +267,7 @@ export class CacheInvalidateWorkboxPlugin extends WorkboxPlugin {
    * @param {StrategyHandler} options.handler
    * @return {Promise<Response>}
    */
-  async fetchDidSucceed({request, response, handler}) {
+  async fetchDidSucceed({ request, response, handler }) {
     if (!response || (!response.ok && !this.options?.always)) {
       return response;
     }
@@ -279,7 +284,7 @@ export class CacheInvalidateWorkboxPlugin extends WorkboxPlugin {
    * @param {StrategyHandler} options.handler
    * @return {Promise<void>}
    */
-  async fetchDidFail({request, handler}) {
+  async fetchDidFail({ request, handler }) {
     if (!this.options?.always) {
       return;
     }
@@ -310,10 +315,14 @@ export class AnnouncementWorkboxPlugin extends WorkboxPlugin {
   }
 
   _postMessage(request, response) {
-    if (response && this.statusesToAnnounce.includes(response.status) && this.methodsToAnnounce.includes(request.method)) {
+    if (
+      response &&
+      this.statusesToAnnounce.includes(response.status) &&
+      this.methodsToAnnounce.includes(request.method)
+    ) {
       this.broadcastChannel.postMessage({
         type: `${this.eventNamespace}:${request.method.toLowerCase()}`,
-        url: (new URL(request.url)).pathname,
+        url: new URL(request.url).pathname,
         updatedAt: Date.now(),
       });
     }
@@ -335,6 +344,6 @@ export class AnnouncementWorkboxPlugin extends WorkboxPlugin {
    * @return {Promise<void>}
    */
   async fetchDidFail({ request, error }) {
-    this._postMessage(request.clone(), new Response(error.message, {status: 500}));
+    this._postMessage(request.clone(), new Response(error.message, { status: 500 }));
   }
 }

@@ -7,16 +7,11 @@ import {
   getDocs,
   query,
   setDoc,
-  where
+  where,
 } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
-import {
-  BadRequestError,
-  NotFoundError
-} from '../../errors.js';
-import FirestoreRequestDescriptor, {
-  buildQueryConstraints,
-} from '../../request/firestore.js';
+import { BadRequestError, NotFoundError } from '../../errors.js';
+import FirestoreRequestDescriptor, { buildQueryConstraints } from '../../request/firestore.js';
 import StrategyHandler from './index.js';
 
 const CACHE_NAME = 'firestore';
@@ -31,11 +26,7 @@ async function getDocSnapshot(firestore, descriptor) {
   const constraints = await buildQueryConstraints(descriptor, collectionRef);
 
   if (constraints.length) {
-    const q = query(
-      collectionRef,
-      ...constraints,
-      where('id', '==', descriptor.docId)
-    );
+    const q = query(collectionRef, ...constraints, where('id', '==', descriptor.docId));
 
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
@@ -88,7 +79,9 @@ class FirestoreStrategyHandler extends StrategyHandler {
  * Handler strategy for reading Firestore documents via HEAD.
  */
 export class HeadStrategyHandler extends FirestoreStrategyHandler {
-  get allowedMethods() { return ['HEAD']; }
+  get allowedMethods() {
+    return ['HEAD'];
+  }
 
   /**
    * @param {Request} request
@@ -124,7 +117,9 @@ export class HeadStrategyHandler extends FirestoreStrategyHandler {
  * Handler strategy for reading Firestore documents via GET.
  */
 export class GetStrategyHandler extends FirestoreStrategyHandler {
-  get allowedMethods() { return ['GET']; }
+  get allowedMethods() {
+    return ['GET'];
+  }
 
   /**
    * @param {Request} request
@@ -155,7 +150,7 @@ export class GetStrategyHandler extends FirestoreStrategyHandler {
     const snapshot = await getDocSnapshot(this.firestore, descriptor);
     const data = {
       id: snapshot.id,
-      ...snapshot.data()
+      ...snapshot.data(),
     };
 
     return this.runtime.response.json.ok(data);
@@ -257,7 +252,9 @@ export class UpdateStrategyHandler extends FirestoreStrategyHandler {
  * Handler strategy for updating Firestore documents via POST.
  */
 export class PostStrategyHandler extends UpdateStrategyHandler {
-  get allowedMethods() { return ['POST']; }
+  get allowedMethods() {
+    return ['POST'];
+  }
 
   /**
    * @param {Request} request
@@ -286,7 +283,7 @@ export class PostStrategyHandler extends UpdateStrategyHandler {
     const opts = {
       headers: {
         'X-Cache-Key': `${this.apiPath}/${ref.path}`,
-      }
+      },
     };
 
     if (!existed) {
@@ -302,7 +299,9 @@ export class PostStrategyHandler extends UpdateStrategyHandler {
  * Handler strategy for updating Firestore documents via PUT.
  */
 export class PutStrategyHandler extends UpdateStrategyHandler {
-  get allowedMethods() { return ['PUT']; }
+  get allowedMethods() {
+    return ['PUT'];
+  }
 
   /**
    * @param {Request} request
@@ -327,7 +326,9 @@ export class PutStrategyHandler extends UpdateStrategyHandler {
  * Handler strategy for updating Firestore documents via PATCH.
  */
 export class PatchStrategyHandler extends UpdateStrategyHandler {
-  get allowedMethods() { return ['PATCH']; }
+  get allowedMethods() {
+    return ['PATCH'];
+  }
 
   /**
    * @param {Request} request
@@ -354,7 +355,9 @@ export class PatchStrategyHandler extends UpdateStrategyHandler {
  * Handler strategy for updating Firestore documents via DELETE.
  */
 export class DeleteStrategyHandler extends UpdateStrategyHandler {
-  get allowedMethods() { return ['DELETE']; }
+  get allowedMethods() {
+    return ['DELETE'];
+  }
 
   /**
    * @param {Request} request

@@ -1,9 +1,5 @@
 import { expect } from 'chai';
-import {
-  closeAllChannels,
-  closeChannel,
-  getChannel,
-} from '../../src/sw/broadcast.js';
+import { closeAllChannels, closeChannel, getChannel } from '../../src/sw/broadcast.js';
 
 describe('Broadcast utils', () => {
   const originalBroadcastChannel = globalThis.BroadcastChannel;

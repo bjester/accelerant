@@ -1,8 +1,13 @@
 import { expect } from 'chai';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import JSONResponseFactory from '../../src/response/json.js';
-import { GetStrategyHandler, PostStrategyHandler, PatchStrategyHandler, DeleteStrategyHandler } from '../../src/strategy/handler/firestore.js';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import RequestContext from '../../src/request/index.js';
+import JSONResponseFactory from '../../src/response/json.js';
+import {
+  DeleteStrategyHandler,
+  GetStrategyHandler,
+  PatchStrategyHandler,
+  PostStrategyHandler,
+} from '../../src/strategy/handler/firestore.js';
 import { getIntegrationRuntime } from './runtime.js';
 
 function makeHandler(runtime, HandlerClass, request) {
@@ -10,7 +15,7 @@ function makeHandler(runtime, HandlerClass, request) {
   const strategy = {
     plugins: [],
     responseFactory: new JSONResponseFactory(),
-    options: { apiPath: '/api/db' }
+    options: { apiPath: '/api/db' },
   };
   const event = { waitUntil: () => {} };
   return new HandlerClass(runtime, strategy, { event, request, params: undefined });
@@ -23,7 +28,7 @@ function makeRequest(url, options = {}) {
 describe('Firestore handlers (emulator)', () => {
   let runtime;
 
-  before(async function () {
+  before(async () => {
     runtime = await getIntegrationRuntime();
   });
 
@@ -43,14 +48,11 @@ describe('Firestore handlers (emulator)', () => {
   });
 
   it('POST creates doc and PATCH updates it', async () => {
-    const postRequest = makeRequest(
-      'http://localhost/api/db/todos',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Write tests' })
-      }
-    );
+    const postRequest = makeRequest('http://localhost/api/db/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Write tests' }),
+    });
     const postHandler = makeHandler(runtime, PostStrategyHandler, postRequest);
     const postResponse = await postHandler._doFetch(postRequest);
     expect(postResponse.status).to.equal(201);
@@ -58,14 +60,11 @@ describe('Firestore handlers (emulator)', () => {
     const created = await postResponse.json();
     expect(created.id).to.be.a('string').and.not.empty;
 
-    const patchRequest = makeRequest(
-      `http://localhost/api/db/todos/${created.id}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: created.id, done: true })
-      }
-    );
+    const patchRequest = makeRequest(`http://localhost/api/db/todos/${created.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: created.id, done: true }),
+    });
 
     const patchHandler = makeHandler(runtime, PatchStrategyHandler, patchRequest);
     const patchResponse = await patchHandler._doFetch(patchRequest);
@@ -92,13 +91,28 @@ describe('Firestore handlers (emulator)', () => {
   });
 
   it('GET collection supports where, orderBy, and limit', async () => {
-    await setDoc(doc(runtime.firebase.firestore, 'people', 'p1'), { id: 'p1', age: '30', role: 'admin', createdAt: 3 });
-    await setDoc(doc(runtime.firebase.firestore, 'people', 'p2'), { id: 'p2', age: '25', role: 'editor', createdAt: 2 });
-    await setDoc(doc(runtime.firebase.firestore, 'people', 'p3'), { id: 'p3', age: '19', role: 'viewer', createdAt: 1 });
+    await setDoc(doc(runtime.firebase.firestore, 'people', 'p1'), {
+      id: 'p1',
+      age: '30',
+      role: 'admin',
+      createdAt: 3,
+    });
+    await setDoc(doc(runtime.firebase.firestore, 'people', 'p2'), {
+      id: 'p2',
+      age: '25',
+      role: 'editor',
+      createdAt: 2,
+    });
+    await setDoc(doc(runtime.firebase.firestore, 'people', 'p3'), {
+      id: 'p3',
+      age: '19',
+      role: 'viewer',
+      createdAt: 1,
+    });
 
     const request = makeRequest(
       'http://localhost/api/db/people?age__gte=21&orderBy=desc:createdAt&limit=2',
-      { method: 'GET' }
+      { method: 'GET' },
     );
     const handler = makeHandler(runtime, GetStrategyHandler, request);
 
@@ -111,13 +125,26 @@ describe('Firestore handlers (emulator)', () => {
   });
 
   it('GET collection supports in and has_any filters', async () => {
-    await setDoc(doc(runtime.firebase.firestore, 'teams', 't1'), { id: 't1', role: 'admin', tags: ['alpha'] });
-    await setDoc(doc(runtime.firebase.firestore, 'teams', 't2'), { id: 't2', role: 'editor', tags: ['beta'] });
-    await setDoc(doc(runtime.firebase.firestore, 'teams', 't3'), { id: 't3', role: 'viewer', tags: ['gamma'] });
+    await setDoc(doc(runtime.firebase.firestore, 'teams', 't1'), {
+      id: 't1',
+      role: 'admin',
+      tags: ['alpha'],
+    });
+    await setDoc(doc(runtime.firebase.firestore, 'teams', 't2'), {
+      id: 't2',
+      role: 'editor',
+      tags: ['beta'],
+    });
+    await setDoc(doc(runtime.firebase.firestore, 'teams', 't3'), {
+      id: 't3',
+      role: 'viewer',
+      tags: ['gamma'],
+    });
 
     const request = makeRequest(
       'http://localhost/api/db/teams?role__in=admin&role__in=editor&tags__has_any=alpha&tags__has_any=beta',
-      { method: 'GET' });
+      { method: 'GET' },
+    );
     const handler = makeHandler(runtime, GetStrategyHandler, request);
 
     const response = await handler._doFetch(request);
@@ -129,12 +156,18 @@ describe('Firestore handlers (emulator)', () => {
   });
 
   it('GET collection group returns matching docs', async () => {
-    await setDoc(doc(runtime.firebase.firestore, 'users', 'u1', 'items', 'i1'), { id: 'i1', createdAt: 1 });
-    await setDoc(doc(runtime.firebase.firestore, 'orgs', 'o1', 'items', 'i2'), { id: 'i2', createdAt: 2 });
+    await setDoc(doc(runtime.firebase.firestore, 'users', 'u1', 'items', 'i1'), {
+      id: 'i1',
+      createdAt: 1,
+    });
+    await setDoc(doc(runtime.firebase.firestore, 'orgs', 'o1', 'items', 'i2'), {
+      id: 'i2',
+      createdAt: 2,
+    });
 
-    const request = makeRequest(
-      'http://localhost/api/db/items.group?orderBy=asc:createdAt',
-      { method: 'GET' });
+    const request = makeRequest('http://localhost/api/db/items.group?orderBy=asc:createdAt', {
+      method: 'GET',
+    });
     const handler = makeHandler(runtime, GetStrategyHandler, request);
 
     const response = await handler._doFetch(request);
@@ -152,7 +185,8 @@ describe('Firestore handlers (emulator)', () => {
 
     const startAtRequest = makeRequest(
       'http://localhost/api/db/pages?orderBy=asc:createdAt&at=p2',
-      { method: 'GET' });
+      { method: 'GET' },
+    );
     const startAtHandler = makeHandler(runtime, GetStrategyHandler, startAtRequest);
     const startAtResponse = await startAtHandler._doFetch(startAtRequest);
     const startAtBody = await startAtResponse.json();
@@ -162,7 +196,8 @@ describe('Firestore handlers (emulator)', () => {
 
     const startAfterRequest = makeRequest(
       'http://localhost/api/db/pages?orderBy=asc:createdAt&after=p2',
-      { method: 'GET' });
+      { method: 'GET' },
+    );
     const startAfterHandler = makeHandler(runtime, GetStrategyHandler, startAfterRequest);
     const startAfterResponse = await startAfterHandler._doFetch(startAfterRequest);
     const startAfterBody = await startAfterResponse.json();
@@ -172,9 +207,9 @@ describe('Firestore handlers (emulator)', () => {
   });
 
   it('GET collection rejects invalid query params', async () => {
-    const invalidOrderRequest = makeRequest(
-      'http://localhost/api/db/people?age__nope=1',
-      { method: 'GET' });
+    const invalidOrderRequest = makeRequest('http://localhost/api/db/people?age__nope=1', {
+      method: 'GET',
+    });
     const invalidOrderHandler = makeHandler(runtime, GetStrategyHandler, invalidOrderRequest);
     let invalidOrderResponse;
     try {
@@ -184,9 +219,9 @@ describe('Firestore handlers (emulator)', () => {
     }
     expect(invalidOrderResponse.status).to.equal(400);
 
-    const invalidLimitRequest = makeRequest(
-      'http://localhost/api/db/people?limit=not-a-number',
-      { method: 'GET' });
+    const invalidLimitRequest = makeRequest('http://localhost/api/db/people?limit=not-a-number', {
+      method: 'GET',
+    });
     const invalidLimitHandler = makeHandler(runtime, GetStrategyHandler, invalidLimitRequest);
     let invalidLimitResponse;
     try {

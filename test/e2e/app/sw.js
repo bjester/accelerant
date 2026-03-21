@@ -5,7 +5,7 @@ registerRoutes({
     apiKey: 'demo',
     appId: 'demo',
     projectId: 'demo-accelerant',
-    storageBucket: 'demo-accelerant.appspot.com'
+    storageBucket: 'demo-accelerant.appspot.com',
   },
   useEmulators: true,
   emulatorHost: '127.0.0.1',
@@ -16,6 +16,6 @@ registerRoutes({
   requireClaims: null,
   broadcastChannelName: 'accelerant-e2e',
   firestoreCache: {
-    minHits: 1
-  }
+    minHits: 1,
+  },
 });
