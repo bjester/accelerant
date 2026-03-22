@@ -90,6 +90,17 @@ export function registerRoutes(config, routePaths = {}) {
     registerStorageRoutes(storage, runtime);
   }
 
+  // Service worker event listeners
+  self.addEventListener('install', (event) => {
+    // Skip waiting to activate immediately
+    event.waitUntil(self.skipWaiting());
+  });
+
+  self.addEventListener('activate', (event) => {
+    // Take control of all clients immediately
+    event.waitUntil(self.clients.claim());
+  });
+
   // Set up catch-all handler for unmatched routes
   setCatchHandler(({ request }) => {
     return runtime.response.json.notFound(`Route not found: ${request.url}`);
@@ -285,19 +296,3 @@ function registerStorageRoutes(apiPath, runtime) {
     plugins: [announcementPlugin],
   });
 }
-
-// Service worker event listeners
-self.addEventListener('install', (event) => {
-  // Skip waiting to activate immediately
-  event.waitUntil(self.skipWaiting());
-});
-
-self.addEventListener('activate', (event) => {
-  // Take control of all clients immediately
-  event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener('fetch', (_event) => {
-  // Let Workbox handle the fetch event
-  // Routes will be matched and handled by the registered routes
-});

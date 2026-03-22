@@ -118,5 +118,4 @@ export default Accelerant;
 
 export { registerRoutes } from './sw/worker.js';
 // Export individual components for advanced usage
-// Export utility functions
-export { Accelerant, flattenToParams };
+export { Accelerant };
