@@ -11,6 +11,9 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
+      promise-be-deferred:
+        specifier: ^1.0.1
+        version: 1.0.1
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -63,6 +66,9 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
+      firebase:
+        specifier: ^12.9.0
+        version: 12.9.0
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -75,25 +81,6 @@ importers:
       workbox-strategies:
         specifier: ^7.4.0
         version: 7.4.0
-    devDependencies:
-      chai:
-        specifier: ^6.2.2
-        version: 6.2.2
-      fast-glob:
-        specifier: ^3.3.3
-        version: 3.3.3
-      firebase:
-        specifier: ^12.9.0
-        version: 12.9.0
-      mocha:
-        specifier: ^11.7.5
-        version: 11.7.5
-      rollup:
-        specifier: ^4.59.0
-        version: 4.59.1
-      rollup-plugin-copy:
-        specifier: ^3.5.0
-        version: 3.5.0
 
 packages:
 
@@ -3162,6 +3149,10 @@ packages:
   progress@2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
+
+  promise-be-deferred@1.0.1:
+    resolution: {integrity: sha512-dhDDlJ9Z2pogxWwR5QwQowmM6UFwnTdi3Ie0P1PgtaLnTivEFdAJnbHXRkP4YHKoSCnV1fd33WH6ukDrI6A5Bw==}
+    engines: {node: '>=4.3'}
 
   promise-breaker@6.0.0:
     resolution: {integrity: sha512-BthzO9yTPswGf7etOBiHCVuugs2N01/Q/94dIPls48z2zCmrnDptUUZzfIb+41xq0MnYZ/BzmOd6ikDR4ibNZA==}
@@ -7245,6 +7236,8 @@ snapshots:
   process@0.11.10: {}
 
   progress@2.0.3: {}
+
+  promise-be-deferred@1.0.1: {}
 
   promise-breaker@6.0.0: {}
 

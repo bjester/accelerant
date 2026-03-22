@@ -79,3 +79,35 @@ export default class RequestContext extends Request {
     return initialValue;
   }
 }
+
+/**
+ * Flattens an object or array recursively into an array of [key, value] pairs for query params.
+ * This avoids key collisions for array items by returning pairs instead of an object.
+ * @param {Object|Array} thing
+ * @param {String|null} [parentKey]
+ * @return {Array<[string, any]>}
+ */
+export function flattenToParams(thing, parentKey = null) {
+  const output = [];
+  if (Array.isArray(thing)) {
+    const newKey = `${parentKey || ''}[]`;
+    for (const item of thing) {
+      if (item !== null && (Array.isArray(item) || typeof item === 'object')) {
+        output.push(...flattenToParams(item, newKey));
+      } else {
+        output.push([newKey, item]);
+      }
+    }
+    return output;
+  }
+
+  for (const [key, value] of Object.entries(thing)) {
+    const newKey = parentKey ? `${parentKey}[${key}]` : key;
+    if (value !== null && (Array.isArray(value) || typeof value === 'object')) {
+      output.push(...flattenToParams(value, newKey));
+    } else {
+      output.push([newKey, value]);
+    }
+  }
+  return output;
+}
