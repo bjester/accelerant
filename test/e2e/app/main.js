@@ -11,9 +11,7 @@ const recordMessage = (value) => {
   messagesEl.textContent += `${JSON.stringify(value)}\n`;
 };
 
-const config = {
-  useEmulators: true,
-};
+const config = {};
 
 export const accelerantReady = (async () => {
   const { accelerant, registration } = await registerServiceWorker(config, '/sw.js');
