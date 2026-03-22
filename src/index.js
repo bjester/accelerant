@@ -1,6 +1,6 @@
 /**
- * Main library entry point
- * Provides service worker registration
+ * Main library entry point for client-side integration.
+ * Provides the Accelerant class and a convenience function for service worker registration.
  */
 import Deferred from 'promise-be-deferred';
 import { flattenToParams } from './request/index.js';
