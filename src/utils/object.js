@@ -1,3 +1,5 @@
+const isObject = (value) => Object.prototype.toString.call(value) === '[object Object]';
+
 /**
  * Deep merge utility function
  * @param {Object} target - The target object to merge into
@@ -9,12 +11,7 @@ export function merge(target, source) {
 
   for (const key in source) {
     if (Object.hasOwn(source, key)) {
-      if (
-        source[key] instanceof Object &&
-        target[key] instanceof Object &&
-        !Array.isArray(source[key]) &&
-        !Array.isArray(target[key])
-      ) {
+      if (isObject(source[key]) && isObject(target[key])) {
         // Deep merge for plain objects
         output[key] = merge(target[key], source[key]);
       } else {
