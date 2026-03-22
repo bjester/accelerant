@@ -10,10 +10,14 @@ export default defineConfig({
     baseURL: 'http://localhost:4173',
     headless: true,
     serviceWorkers: 'allow',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   webServer: {
-    command: 'pnpm exec vite --config test/e2e/vite.config.js',
+    command:
+      'pnpm exec vite build --config test/e2e/vite.config.js && pnpm exec vite preview --config test/e2e/vite.config.js --strictPort',
     url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
 });

@@ -61,27 +61,6 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.3)(yaml@2.8.3)
 
-  dist:
-    dependencies:
-      events:
-        specifier: ^3.3.0
-        version: 3.3.0
-      firebase:
-        specifier: ^12.9.0
-        version: 12.9.0
-      uuid:
-        specifier: ^13.0.0
-        version: 13.0.0
-      workbox-expiration:
-        specifier: ^7.4.0
-        version: 7.4.0
-      workbox-routing:
-        specifier: ^7.4.0
-        version: 7.4.0
-      workbox-strategies:
-        specifier: ^7.4.0
-        version: 7.4.0
-
 packages:
 
   '@apidevtools/json-schema-ref-parser@9.1.2':
