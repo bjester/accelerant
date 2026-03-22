@@ -1,6 +1,7 @@
-// Main library entry point
-// Provides service worker registration and core functionality
-
+/**
+ * Main library entry point
+ * Provides service worker registration
+ */
 import Deferred from 'promise-be-deferred';
 import { flattenToParams } from './request/index.js';
 
@@ -29,7 +30,7 @@ import { flattenToParams } from './request/index.js';
 /**
  * Main Accelerant class
  */
-class Accelerant {
+export default class Accelerant {
   /**
    * @param {AccelerantConfig} config
    */
@@ -112,10 +113,3 @@ export async function registerServiceWorker(config, scriptUrl = '/sw.js', option
   const registration = await accelerant.registerServiceWorker(scriptUrl, options);
   return { accelerant, registration };
 }
-
-// Export the main class
-export default Accelerant;
-
-export { registerRoutes } from './sw/worker.js';
-// Export individual components for advanced usage
-export { Accelerant };

@@ -22,7 +22,7 @@ await registerServiceWorker({
 ### Service worker
 
 ```js
-import { registerRoutes } from 'accelerant/src/sw/worker.js';
+import { registerRoutes } from 'accelerant/sw';
 
 registerRoutes({
   firebaseConfig: {
