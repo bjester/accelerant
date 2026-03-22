@@ -2,7 +2,8 @@
 // Sets up Workbox routing and registers all Accelerant routes
 import { setCatchHandler } from 'workbox-routing';
 import { FirestorePath } from '../request/firestore.js';
-import RequestContext from '../request/index.js';
+import { merge } from '../utils/object.js';
+import { parseFlattenedParams } from '../utils/url.js';
 import WorkerRuntime from './runtime.js';
 // shim for firebase-storage (doh!)
 import '../shim/xhr.js';
@@ -61,42 +62,7 @@ export function registerRoutes(config, routePaths = {}) {
   if (!config) {
     throw new Error('Service worker config is required.');
   }
-  const workerReq = new RequestContext(new Request(self.location.href), {});
-  const configParams = workerReq.reduceParams((cfg, value, key) => {
-    const parts = key.split(/[[\]]+/).filter(Boolean);
-    let target = cfg;
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      const isLast = i === parts.length - 1;
-
-      if (isLast) {
-        if (Array.isArray(value) && value.length === 1 && !key.includes('[]')) {
-          target[part] = value[0];
-        } else {
-          target[part] = value;
-        }
-      } else {
-        const nextPart = parts[i + 1];
-        // If the next part is empty or numeric-like, it's an array, otherwise an object
-        if (!target[part]) {
-          target[part] = /^\d+$/.test(nextPart) ? [] : {};
-        }
-        target = target[part];
-      }
-    }
-    return cfg;
-  }, {});
-
-  const merge = (target, source) => {
-    for (const key in source) {
-      if (source[key] instanceof Object && key in target) {
-        Object.assign(source[key], merge(target[key], source[key]));
-      }
-    }
-    return { ...target, ...source };
-  };
-
+  const configParams = parseFlattenedParams(self.location.href);
   const mergedConfig = merge(config, configParams);
 
   const {
