@@ -2,6 +2,8 @@
 // Sets up Workbox routing and registers all Accelerant routes
 import { setCatchHandler } from 'workbox-routing';
 import { FirestorePath } from '../request/firestore.js';
+import { merge } from '../utils/object.js';
+import { parseFlattenedParams } from '../utils/url.js';
 import WorkerRuntime from './runtime.js';
 // shim for firebase-storage (doh!)
 import '../shim/xhr.js';
@@ -60,6 +62,8 @@ export function registerRoutes(config, routePaths = {}) {
   if (!config) {
     throw new Error('Service worker config is required.');
   }
+  const configParams = parseFlattenedParams(self.location.href);
+  const mergedConfig = merge(config, configParams);
 
   const {
     auth = API_AUTH_PATH,
@@ -68,7 +72,7 @@ export function registerRoutes(config, routePaths = {}) {
     functions = API_FUNCTIONS_PATH,
     storage = API_STORAGE_PATH,
   } = routePaths;
-  const runtime = new WorkerRuntime(config);
+  const runtime = new WorkerRuntime(mergedConfig);
 
   if (auth) {
     registerAuthRoutes(auth, runtime);

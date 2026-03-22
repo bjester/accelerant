@@ -16,7 +16,7 @@ test.describe('accelerant e2e test', () => {
     await page.waitForFunction(() => window.accelerantReady !== undefined);
     await page.evaluate(() => window.accelerantReady);
     await page.waitForFunction(() => {
-      return navigator.serviceWorker.controller?.scriptURL.endsWith('/sw.js');
+      return navigator.serviceWorker.controller?.scriptURL.includes('/sw.js');
     });
 
     const signIn = await page.evaluate(
