@@ -26,7 +26,14 @@ export const accelerantReady = (async () => {
   await navigator.serviceWorker.ready;
   await refreshAuthStatus();
   return { accelerant, registration };
-})();
+})().catch((error) => {
+  window.__accelerantReadyError = {
+    message: error?.message ?? String(error),
+    name: error?.name ?? 'Error',
+    stack: error?.stack ?? null,
+  };
+  throw error;
+});
 
 async function apiFetch(path, options = {}) {
   const response = await fetch(path, options);
